@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C \"/Users/home/Desktop/Ai Trading/AI-Trading\" log --oneline -5)",
+      "Bash(git -C \"/Users/home/Desktop/Ai Trading/AI-Trading\" rev-parse --abbrev-ref HEAD)",
+      "Bash(git -C \"/Users/home/Desktop/AI Brain/03 Projects/TD Trades\" log --oneline -5)",
+      "Bash(git -C \"/Users/home/Desktop/AI Brain/03 Projects/TD Trades\" rev-parse --abbrev-ref HEAD)",
+      "Bash(rsync -a --stats \"/Users/home/Desktop/AI Brain/03 Projects/TD Trades\" \"/Users/home/Desktop/Ai Trading/AI-Trading/\")"
+    ]
+  }
+}
