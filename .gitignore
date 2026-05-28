@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# Tooling / agent state
+.serena/
+.claude-flow/sessions/
+
+# Python environments
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+
+# Large media (excluded from GitHub push)
+*.mp4
+*.mov
+*.m4v
+*.avi
+*.mkv
+*.m4a
+*.wav
+*.mp3
+*.pages
