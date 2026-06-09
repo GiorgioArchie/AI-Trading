@@ -123,15 +123,14 @@ From [[ICT CONCEPTS.png]] and ICT official framework:
 
 ### 4.1 ERL (External Range Liquidity)
 **Definition:** Liquidity OUTSIDE the dealing range — above the swing high (buy-side) and below the swing low (sell-side).
-**Marked on:** Daily / 4H / 1H charts
+**How identified:** Created by the previous Asia and London session highs/lows. Dynamic intraday levels — not fixed HTF structures. Update as new session ranges form.
 **Role:** The PREMIUM / target — where price is going.
 
 ### 4.2 IRL (Internal Range Liquidity)
-**Definition:** FVGs and inefficiencies INSIDE the range.
-**Marked on:** 15m / 5m charts
-**Role:** The FAIR VALUE / entry zone — where price comes back to.
-
-**Note from ICT research:** Officially, IRL = only FVGs (NOT order blocks). This is a precision detail your playbook should reflect.
+**Definition:** The closest pools of liquidity to current price — specifically FVGs within the range. Per official ICT: IRL = FVGs ONLY (NOT order blocks, NOT VWAP, NOT Bollinger bands).
+**How identified:** Dynamic — the nearest unmitigated FVG relative to current price. Updates continuously as gaps are filled.
+**Role:** The FAIR VALUE / entry zone — where price comes back to first before pushing to the next ERL.
+**Note:** VWAP, Bollinger midline, and gamma walls are quant filters for trade quality, not IRL substitutes.
 
 ### 4.3 The Cycle
 ```
@@ -143,8 +142,8 @@ ERL (premium) ←→ IRL (fair value) ←→ ERL (next premium)
 Price seeks **fair value before premium**. After taking one ERL, expect retrace to IRL, then push to opposite ERL.
 
 ### 4.4 Draw / Objective (DOL)
-**Definition:** The dominant ERL of the day — the one price is being pulled toward.
-**How to find it:** Highest unswept old high (for bullish day) or lowest unswept old low (for bearish day) within the day's relevant context.
+**Definition:** The most extreme unswept swing high (bullish bias) or swing low (bearish bias) that price is being pulled toward.
+**How to find it:** Identify swing highs/lows from price structure → filter out any already swept → determine current bias → select the most extreme remaining unswept level in that direction. Continuously updated as new swings form or levels get swept. Gamma walls and OI are quant quality filters — they do not replace or override the structural DOL.
 **Zion's rule:** If DOL is taken without a model forming → **NO TRADES**. The setup is dead.
 
 🔗 [[Trading With Precision.png]] (Pages 2-4 show Draw identification)
@@ -184,13 +183,20 @@ These are the *tools* the algorithm uses. Each one creates a tradeable area.
 ### 6.1 Model Decision Rule (Zion's confirmed answer)
 > *"The Rev Model is for when order flow flips, but the Continuation Model trades using current order flow. MFD is a different model which takes into account news candles for liquidity."*
 
-**Simplified decision tree:**
+**Three-layer decision hierarchy (C → B → A):**
 
+**Layer C — Gamma Regime (statistical backdrop):**
+Sets which models are statistically favored. Below the influence threshold = sizing modifier only. Above threshold = structural filter that can veto setup types until key gamma levels are cleared.
+
+**Layer B — News/MFD Filter (event gate):**
 ```
 Is there major news in the next 1-2 hours?
   YES → MFD (gather news liquidity)
-  NO ↓
+  NO → proceed to Layer A
+```
 
+**Layer A — ICT Order Flow (actual model selection):**
+```
 Did order flow just FLIP (ERL taken + neckline shift)?
   YES → Rev Model
   NO ↓
@@ -203,6 +209,8 @@ Is there an Inverted FVG retesting in a structured environment?
   YES → IFVG Model
   NO → NO TRADE
 ```
+
+**Note:** Layer A defines which ICT model applies. Layers B and C provide context that influences which models are likely to perform best — they do not replace the order flow read.
 
 ### 6.2 Master Combination (from [[Correctly Applying.png]])
 > **"Bullish Order Flow + Rev Model + Protected Lows. Protected Areas will work best in HTF POIs."**
@@ -225,16 +233,23 @@ This is the holy trinity. When all three align, take the trade.
 ### 7.2 Killzones (where models work best)
 Most setups fire during these windows. Outside them = noise risk.
 
-### 7.3 Macros (NEW — not in your current notes)
-From ICT research — 20-minute windows where the algo "runs" for liquidity:
-- **09:50–10:10 ET** (most important — Silver Bullet window)
-- **10:50–11:10 ET**
-- **11:50–12:10 ET** (lunch macro)
-- **13:10–13:50 ET**
-- **14:50–15:10 ET**
-- **15:15–15:45 ET**
+### 7.3 Macros
+Two-tier model — use each tier for its specific purpose:
 
-🔗 **GAP TO ADDRESS:** Should your strategy explicitly use these macro times? Research suggests they sharpen Rev + Continuation setups significantly.
+**6-window model (entry timing precision):**
+- 09:50–10:10 ET (Silver Bullet window — most important)
+- 10:50–11:10 ET
+- 11:50–12:10 ET (lunch macro)
+- 13:10–13:50 ET
+- 14:50–15:10 ET
+- 15:15–15:45 ET
+
+**3-window model (directional bias & regime classification):**
+- ~10:00 ET (post-open IV crush)
+- ~14:00 ET (post-lunch IV reset / institutional rebalance)
+- ~15:30 ET (closing vol crush)
+
+**Rule:** Time entries within the 6-window model. Use the 3-window model to classify what the market is doing directionally and which gamma regime is in effect.
 
 ### 7.4 Quarterly Theory (NEW — major missing piece)
 Time is fractal. Sessions divide into 90-min quarters, days into 6-hour quarters, etc. Each quarter follows AMD: Accumulation → Manipulation → Distribution.
@@ -271,14 +286,14 @@ A model alone is not enough. Confluences = the multiplier.
 
 Current state from your notes:
 - Position sizing: ~1% per trade (needs formal rule)
-- Stop loss: ~20 pips or previous wick (needs precision)
-- Take profit: PT1 at IRL, full at ERL
+- Stop loss: **Adaptive — scales with IV rank and GEX regime. Never fixed pips.** In confirmed negative-GEX regime, multiply normal stop by ~1.5×. Stops must breathe with the regime, not be fixed in points.
+- Take profit: PT1 at IRL (scale 50%), run remaining position to ERL (PT2), move SL to BE after PT1.
 
 **GAPS — answer in next refinement:**
 - [ ] Daily max loss?
 - [ ] Cumulative weekly loss limit?
 - [ ] How position size scales with setup quality?
-- [ ] Break-even rule trigger (e.g., 1R reached → SL to BE)?
+- [ ] Exact IV rank thresholds for stop scaling?
 
 🔗 [[(C) Desk_Reference_Card.md]] has the template to fill in.
 

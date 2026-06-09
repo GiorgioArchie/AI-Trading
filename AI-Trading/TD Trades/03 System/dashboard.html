@@ -887,7 +887,7 @@
       const data = await res.json();
 
       if (!data.success) {
-        showError(data.error || 'Analysis failed.');
+        showError((data.error || 'Analysis failed.') + (data.traceback ? '\n\n' + data.traceback : ''));
         hideResultCard();
         return;
       }
@@ -1143,7 +1143,7 @@
     entries.forEach(e => {
       const oc   = e.outcome === 'correct' ? '✓' : e.outcome === 'incorrect' ? '✗' : '·';
       const dir  = e.direction !== 'N/A' ? ` ${e.direction}` : '';
-      const label = `${oc}  ${e.timestamp}  |  ${e.symbol}  |  ${e.model}${dir}  —  ${e.confidence}`;
+      const label = `${oc}  ${e.timestamp || ''}  |  ${e.symbol}  |  ${e.model}${dir}  —  ${e.confidence}`;
       const opt  = document.createElement('option');
       opt.value  = e.id;
       opt.textContent = label;
@@ -1169,7 +1169,7 @@
       if (!data.success) { showError(data.error || 'Trade not found.'); return; }
       updateStatus({ symbol: data.symbol, timeframe: data.timeframe });
       currentCallId = data.call_id;
-      renderCall(data.call, data.call_id, data.outcome, data.notes, data.timestamp);
+      renderCall(data.call, data.call_id, data.outcome, data.notes, data.timestamp || null);
     } catch (err) {
       showError('Could not load trade.');
     }
@@ -1194,7 +1194,7 @@
         const oc = { correct: 'outcome-correct', incorrect: 'outcome-incorrect', pending: 'outcome-pending' }[e.outcome] || 'outcome-pending';
         const dirColor = e.direction === 'Long' ? 'color:var(--green)' : e.direction === 'Short' ? 'color:var(--red)' : '';
         return `<tr style="cursor:pointer;" onclick="loadTradeById('${e.id}')">
-          <td style="color:var(--muted)">${e.timestamp}</td>
+          <td style="color:var(--muted)">${e.timestamp || ''}</td>
           <td>${escHtml(e.symbol)} <span style="color:var(--muted)">${e.timeframe}m</span></td>
           <td style="${dirColor}">${escHtml(e.model)}</td>
           <td style="${dirColor}">${escHtml(e.direction)}</td>

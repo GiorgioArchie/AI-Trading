@@ -21,6 +21,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 import anthropic
 import uw_data
+import db
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
@@ -161,62 +162,45 @@ def load_playbook():
 
 # ── Feedback helpers ──────────────────────────────────────────────────────────
 
-def load_recent_feedback(n=10):
-    """Return the last n feedback entries."""
-    if not FEEDBACK_LOG.exists():
+def load_recent_feedback(n=50):
+    """Return last n resolved trades from Supabase for model learning context."""
+    try:
+        return db.get_resolved_feedback(n)
+    except Exception as e:
+        print(f"  [DB] feedback load failed: {e}", flush=True)
         return []
-    entries = []
-    with open(FEEDBACK_LOG) as f:
-        for line in f:
-            try:
-                entries.append(json.loads(line.strip()))
-            except json.JSONDecodeError:
-                pass
-    return entries[-n:]
 
 
 def log_call(call, market_data):
-    """Append a call to the feedback log and return its ID."""
-    call_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    entry = {
-        "id":        call_id,
-        "timestamp": datetime.datetime.now().isoformat(),
-        "symbol":    market_data["status"].get("chart_symbol"),
-        "timeframe": market_data["status"].get("chart_resolution"),
-        "call":      call,
-        "outcome":   "pending",
-        "notes":     "",
-    }
-    with open(FEEDBACK_LOG, "a") as f:
-        f.write(json.dumps(entry) + "\n")
+    """Write a trade call to Supabase. Returns the call_id."""
+    call_id  = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    symbol   = market_data["status"].get("chart_symbol", "?")
+    timeframe = market_data["status"].get("chart_resolution", "?")
+    try:
+        db.log_trade(call_id, call, symbol, timeframe)
+        print(f"  [DB] trade {call_id} saved", flush=True)
+    except Exception as e:
+        print(f"  [DB] save failed: {e} — falling back to JSONL", flush=True)
+        entry = {
+            "id": call_id, "timestamp": datetime.datetime.now().isoformat(),
+            "symbol": symbol, "timeframe": timeframe,
+            "call": call, "outcome": "pending", "notes": "",
+        }
+        with open(FEEDBACK_LOG, "a") as f:
+            f.write(json.dumps(entry) + "\n")
     return call_id
 
 
 def mark_feedback(call_id, outcome, notes=""):
-    """Update outcome on a logged call."""
-    if not FEEDBACK_LOG.exists():
-        print("No feedback log found.")
-        return
-    entries = []
-    with open(FEEDBACK_LOG) as f:
-        for line in f:
-            try:
-                entries.append(json.loads(line.strip()))
-            except json.JSONDecodeError:
-                pass
-    updated = False
-    for e in entries:
-        if e["id"] == call_id:
-            e["outcome"] = outcome
-            e["notes"]   = notes
-            updated = True
-    if updated:
-        with open(FEEDBACK_LOG, "w") as f:
-            for e in entries:
-                f.write(json.dumps(e) + "\n")
+    """Update trade outcome in Supabase."""
+    try:
+        db.update_outcome(call_id, outcome, notes)
         print(f"✓ Marked {call_id} as {outcome}")
-    else:
-        print(f"ID {call_id} not found.")
+    except Exception as e:
+        print(f"  [DB] update failed: {e}")
+
+
+# ── Feedback context builder ───────────────────────────────────────────────────
 
 
 # ── Claude API ────────────────────────────────────────────────────────────────
@@ -328,8 +312,9 @@ def build_feedback_block(feedback):
         call    = e.get("call", {})
         r       = call.get("reasoning", {})
         conf    = call.get("confidence", "?")
+        ts = (e.get("created_at") or e.get("timestamp") or "")[:16]
         lines.append(
-            f"[{e['timestamp'][:16]}] {outcome.upper()} — "
+            f"[{ts}] {outcome.upper()} — "
             f"{call.get('model','?')} {call.get('direction','?')} [{conf}] "
             f"| {r.get('model_forming','?')}"
         )

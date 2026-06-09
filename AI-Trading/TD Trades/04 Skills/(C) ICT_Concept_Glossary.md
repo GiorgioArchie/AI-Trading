@@ -81,8 +81,9 @@
 
 ### DOL (Draw on Liquidity)
 **Also called:** Draw, Objective
-**What:** The dominant liquidity pool price is being pulled toward — usually an unswept high or low.
+**What:** The most extreme unswept swing high (bullish bias) or swing low (bearish bias) that price is being pulled toward.
 **Layer:** L4 (primary concept) + L10 (psychology)
+**How identified:** From price structure only — identify swing highs/lows, filter out any already swept, determine current bias, select the most extreme remaining unswept level in that direction. Continuously updated as new swings form or levels get swept.
 **Zion's rule:** If DOL is taken before a model forms → NO TRADES. Critical.
 
 ---
@@ -95,10 +96,11 @@
 **Significance:** Liquidity magnet — institutions will likely sweep these.
 
 ### ERL (External Range Liquidity)
-**What:** Liquidity OUTSIDE the dealing range. Above swing high = buy-side ERL. Below swing low = sell-side ERL. Per official ICT: this is old highs and old lows.
+**What:** Liquidity OUTSIDE the dealing range. Above swing high = buy-side ERL. Below swing low = sell-side ERL.
 **Layer:** L4
 **Role:** The PREMIUM target — where price is going.
-**Marked on:** Daily / 4H / 1H charts (HTF for bias).
+**How identified:** Created by the previous Asia and London session highs/lows. These are dynamic intraday levels, not fixed HTF structures — they update as new session ranges form.
+**Distinction:** ERL is the outer draw target. IRL is the nearest internal target price reacts to first.
 
 ---
 
@@ -117,7 +119,7 @@
 ### FTSL (Failure to Seek Low)
 **What:** Price approaches a previous low but fails to take it out. Suggests weakness in downward move.
 **Layer:** L2 (confluence)
-**Used in:** Continuation Model (FTSH in bearish flow = bonus confirmation).
+**Operational rule:** FTSL is confirmed by a clear shift in order flow back in the opposite direction. It is a confluence signal that adds confidence to a Rev or Continuation setup — never mandatory, never a standalone trigger. Same logic applies to FTSH.
 
 ### FVG (Fair Value Gap)
 **What:** A 3-candle pattern where there's a gap between candle 1's high and candle 3's low (bullish) or candle 1's low and candle 3's high (bearish). The middle candle "skips" the price zone.
@@ -164,10 +166,11 @@
 **Action:** Reference only, not directly tradeable.
 
 ### IRL (Internal Range Liquidity)
-**What:** Liquidity INSIDE the dealing range. Per official ICT, this is specifically the FVGs within the range (NOT order blocks).
+**What:** Liquidity INSIDE the dealing range. Per official ICT, this is specifically the FVGs within the range (NOT order blocks, NOT VWAP, NOT Bollinger bands).
 **Layer:** L4
-**Role:** The FAIR VALUE entry zone — where price comes back to before pushing to next ERL.
-**Marked on:** 15m / 5m charts (LTF for precision).
+**Role:** The FAIR VALUE entry zone — the closest pools of liquidity to current price. Where price comes back to before pushing to the next ERL.
+**How identified:** Dynamic — the nearest unmitigated FVG relative to current price. Updates continuously as price moves and gaps are filled.
+**Distinction:** VWAP, Bollinger midline, and gamma walls are quant filters for trade quality, not IRL substitutes.
 
 ### ITH / ITL (Intermediate Term High / Low)
 **What:** Multi-hour swing points. Larger than STH/STL but smaller than LTH/LTL.
@@ -210,15 +213,12 @@
 ## M
 
 ### Macro Time (20-min algo windows)
-**What:** Specific 20-minute windows when the ICT algorithm "runs" for liquidity:
-- 09:50 – 10:10 ET (Silver Bullet window)
-- 10:50 – 11:10 ET
-- 11:50 – 12:10 ET (lunch macro)
-- 13:10 – 13:50 ET
-- 14:50 – 15:10 ET
-- 15:15 – 15:45 ET
+**What:** Specific 20-minute windows when the ICT algorithm "runs" for liquidity.
 **Layer:** L7
-**NEW from research** — Recommended test: do these windows improve your win rate?
+**Two-tier model:**
+- **6-window model (entry timing precision):** 09:50–10:10, 10:50–11:10, 11:50–12:10, 13:10–13:50, 14:50–15:10, 15:15–15:45 ET
+- **3-window model (directional bias & regime classification):** ~10:00 ET (post-open IV crush), ~14:00 ET (post-lunch IV reset), ~15:30 ET (closing vol crush)
+**Rule:** Use the 6-window model to time entries precisely. Use the 3-window model to classify directional bias and gamma regime shifts.
 
 ### Manipulation
 **What:** The second phase of AMD. Institutions create false moves to trap retail before the real distribution.
@@ -240,11 +240,24 @@
 **What:** A break of a significant support/resistance level that signals a change in trend direction.
 **Layer:** L3
 **Distinction:** Different from BOS — MSS is counter to current trend (reversal signal). BOS is in-trend (continuation signal).
-**Validation:** Real MSS requires decisive displacement (large-body close), volume aggression, and HTF alignment. See your notes on Bookmap/LuxAlgo references.
+**Confirmation rule:** A real MSS requires a full buy/sell sequence above/below the level — a single candle closure or wick is not sufficient. Wait for displacement (large-body candles, clear directional intent) before confirming.
+**High-conviction confirmation:** Bookmap absorption at the level confirms a genuine MSS entry under optimal risk conditions. Bookmap is not required to identify the MSS, but is required to confirm high-conviction entries.
 
 ---
 
 ## O
+
+### Options Flow (Aggressor-Side Classification)
+**What:** Real-time options order flow classified by who crossed the spread — the aggressor (initiator of the trade).
+**Layer:** L8 (confluence / quant filter)
+**Core rule:** Always classify options flow by aggressor side, not raw call/put volume.
+- **At-ask call sweep** = buyer crossed the spread to own calls → **bullish** signal (upside ERL is the magnet)
+- **At-bid call sweep** = seller crossed the spread, closing or shorting calls → **bearish divergence** (lacks aggressor backing)
+- **At-ask put sweep** = buyer crossed the spread to own puts → **bearish** signal
+- **At-bid put sweep** = seller crossed the spread, closing or shorting puts → **bullish divergence**
+**Aggressor definition:** In market microstructure, the aggressor is the participant who initiates the trade by crossing the spread. Raw call/put volume dominance is meaningless without knowing the aggressor side.
+
+---
 
 ### OB (Order Block)
 **What:** The last opposite-direction candle before an impulsive move that sweeps liquidity AND breaks structure. Marks an institutional entry/exit zone.
@@ -284,7 +297,7 @@
 ### Protected High / Low
 **What:** Intermediate-term high/low that has held despite retests in clear order flow.
 **Layer:** L3 (when validated) + L8 (used as confluence)
-**Rule:** **CONFLUENCE, NOT MODEL.** Must be combined with a primary model (Rev/Continuation).
+**Rule:** **CONFLUENCE, NOT MODEL.** Never triggers a trade on its own. Protected highs/lows are embedded inside a Rev or Continuation setup — they raise confidence in the setup but do not initiate one.
 
 ---
 

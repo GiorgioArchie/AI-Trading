@@ -5,56 +5,67 @@
 
 ## The Question Tree
 
+Three layers run in sequence. Each layer narrows context — Layer A makes the final ICT model decision.
+
 ```
 START: You see a setup forming on your chart
 
-    ↓ Ask: What is the TIME context?
+    ╔═════════════════════════════════════════╗
+    ║  LAYER C — GAMMA REGIME                 ║
+    ║  (Statistical backdrop — runs pre-market)║
+    ╚═════════════════════════════════════════╝
+    
+    Is gamma regime influence LOW relative
+    to current volatility and distance from
+    gamma levels?
+      YES → Regime = sizing modifier only. All models available.
+      NO  → Regime = structural filter. Veto continuation
+            breakouts until key gamma wall is cleared.
+    
+    ↓
+    
+    ╔═════════════════════════════════════════╗
+    ║  LAYER B — NEWS / MFD FILTER            ║
+    ║  (Event gate)                           ║
+    ╚═════════════════════════════════════════╝
     
     ┌─────────────────────────────────────────┐
-    │                                         │
-    │ Is there a HIGH-IMPACT NEWS event      │
-    │ happening in the next 1-2 hours?       │
-    │                                         │
-    │ YES → Go to MFD MODEL                  │
-    │ NO → Continue                          │
-    │                                         │
+    │ Is there a HIGH-IMPACT NEWS event       │
+    │ happening in the next 1-2 hours?        │
+    │ YES → Go to MFD MODEL                   │
+    │ NO → Continue to Layer A               │
     └─────────────────────────────────────────┘
     
     ↓
     
-    ┌─────────────────────────────────────────┐
-    │                                         │
-    │ Ask: What is the STRUCTURE?             │
-    │ (On your HTF bias chart)                │
-    │                                         │
-    │ STRONG TREND UP/DOWN?                   │
-    │ YES → Go to CONTINUATION MODEL          │
-    │ NO → Continue                          │
-    │                                         │
-    └─────────────────────────────────────────┘
-    
-    ↓
+    ╔═════════════════════════════════════════╗
+    ║  LAYER A — ICT ORDER FLOW               ║
+    ║  (Actual model selection)               ║
+    ╚═════════════════════════════════════════╝
     
     ┌─────────────────────────────────────────┐
-    │                                         │
-    │ Ask: Is price at a MAJOR REVERSAL       │
-    │ point? (ERL taken, structure low)       │
-    │                                         │
+    │ Did order flow just FLIP?               │
+    │ (ERL taken + neckline shift)            │
     │ YES → Go to REV MODEL                   │
     │ NO → Continue                          │
-    │                                         │
     └─────────────────────────────────────────┘
     
     ↓
     
     ┌─────────────────────────────────────────┐
-    │                                         │
-    │ Ask: Is there an UNFILLED FVG or       │
-    │ IMBALANCE nearby?                       │
-    │                                         │
+    │ Is order flow STRONG and aligned        │
+    │ across timeframes?                      │
+    │ YES → Go to CONTINUATION MODEL          │
+    │ NO → Continue                          │
+    └─────────────────────────────────────────┘
+    
+    ↓
+    
+    ┌─────────────────────────────────────────┐
+    │ Is there an IFVG retesting in a         │
+    │ structured environment?                 │
     │ YES → Go to IFVG MODEL                  │
     │ NO → SKIP, No Setup                    │
-    │                                         │
     └─────────────────────────────────────────┘
 ```
 
@@ -74,9 +85,9 @@ START: You see a setup forming on your chart
 - [ ] Clear draw above (ERL target)
 
 **Entry:** Flip candle off neckline break  
-**SL:** ~20p below neckline or previous wick  
-**PT1:** IRL (fair value)  
-**PT2:** ERL (premium target)  
+**SL:** Below structure (previous wick / neckline). Scale with IV rank and GEX regime — never fixed pips. In negative-GEX regime, multiply normal stop by ~1.5×.  
+**PT1:** IRL (fair value) — scale 50%, move SL to BE  
+**PT2:** ERL (premium target) — run remaining position  
 
 **Win Rate (Claimed):** 85-90% if all conditions met  
 **Best For:** Scalping to medium-term (5m-15m timeframes)  
@@ -95,14 +106,15 @@ START: You see a setup forming on your chart
 **Setup Requirements:**
 - [ ] HTF shows clear bullish/bearish structure (HH/HL or LL/LH)
 - [ ] Price has swept IRL recently
-- [ ] No major reversal signals (FTSL doesn't apply)
+- [ ] No major reversal signals
+- [ ] FTSL/FTSH checked — if present, treat as additional confluence (not mandatory)
 - [ ] Fair value zone identified (multiple TF alignment)
 - [ ] Clear external draw/liquidity above/below
 
 **Entry:** After retracement into IRL + model confirmation  
-**SL:** Below structure low (or ~20p if tight)  
-**PT1:** IRL (first target to secure base profit)  
-**PT2:** Full ERL (premium target for trend following)  
+**SL:** Below structure low. Scale with IV rank and GEX regime — never fixed pips.  
+**PT1:** IRL (scale 50%, move SL to BE)  
+**PT2:** Full ERL (run remaining position)  
 
 **Win Rate:** Depends on HTF/LTF alignment  
 **Best For:** Momentum traders, riding strong trends, scalping with direction

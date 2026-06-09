@@ -554,7 +554,10 @@ This section is intentionally short. It documents what microstructure concepts y
 
 This is the load-bearing insight of Part 4 and possibly the entire document:
 
-> **The regime classifier is a multiplier on your existing ICT setups, not a replacement.**
+> **The gamma regime transitions from a sizing modifier to a structural filter once its influence exceeds a threshold relative to price volatility and proximity to gamma levels.**
+
+- **Below threshold** (regime influence low relative to current volatility and distance from gamma levels): regime = sizing modifier only. Same ICT setups apply, just with adjusted position size, stop discipline, and target discipline.
+- **Above threshold** (regime dominates): regime = structural filter. Certain setup types are vetoed until key gamma levels are cleared (e.g., continuation breakouts in confirmed long-gamma are not taken until price clears the gamma wall).
 
 Concretely, every ICT setup you currently trade gets a regime-modifier applied:
 

@@ -8,8 +8,10 @@ Open: http://localhost:5000
 from flask import Flask, jsonify, request, send_from_directory
 from pathlib import Path
 import json
+import traceback
 
 import uw_data
+import db
 from ict_copilot import (
     get_market_data,
     load_playbook,
@@ -17,7 +19,6 @@ from ict_copilot import (
     analyze,
     log_call,
     mark_feedback,
-    FEEDBACK_LOG,
 )
 
 SCRIPT_DIR = Path(__file__).parent
@@ -62,7 +63,9 @@ def api_analyze():
             "uw":         uw_parsed,
         })
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+        tb = traceback.format_exc()
+        print(f"\n[ERROR IN ANALYZE]\n{tb}", flush=True)
+        return jsonify({"success": False, "error": f"{type(e).__name__}: {e}", "traceback": tb}), 500
 
 
 @app.route("/api/feedback", methods=["POST"])
@@ -81,20 +84,25 @@ def api_feedback():
 
 @app.route("/api/history", methods=["GET"])
 def api_history():
-    entries = load_recent_feedback(200)
+    try:
+        rows = db.get_history(200)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     result = []
-    for e in reversed(entries):
-        call = e.get("call", {})
+    for r in rows:
+        call = r.get("call") or {}
+        ts   = (r.get("created_at") or "")[:16].replace("T", " ")
         result.append({
-            "id":         e["id"],
-            "timestamp":  e["timestamp"][:16].replace("T", " "),
-            "symbol":     e.get("symbol", "?"),
-            "timeframe":  e.get("timeframe", "?"),
-            "model":      call.get("model", "?"),
-            "direction":  call.get("direction", "?"),
-            "confidence": call.get("confidence", "?"),
-            "outcome":    e.get("outcome", "pending"),
-            "notes":      e.get("notes", ""),
+            "id":         r["id"],
+            "timestamp":  ts,
+            "symbol":     r.get("symbol", "?"),
+            "timeframe":  r.get("timeframe", "?"),
+            "model":      r.get("model") or call.get("model", "?"),
+            "direction":  r.get("direction") or call.get("direction", "?"),
+            "confidence": r.get("confidence") or call.get("confidence", "?"),
+            "rr_ratio":   r.get("rr_ratio"),
+            "outcome":    r.get("outcome", "pending"),
+            "notes":      r.get("notes", ""),
             "call":       call,
         })
     return jsonify(result)
@@ -102,24 +110,28 @@ def api_history():
 
 @app.route("/api/trade/<call_id>", methods=["GET"])
 def api_trade(call_id):
-    entries = load_recent_feedback(500)
-    for e in entries:
-        if e["id"] == call_id:
-            return jsonify({
-                "success":   True,
-                "call_id":   e["id"],
-                "call":      e.get("call", {}),
-                "symbol":    e.get("symbol"),
-                "timeframe": e.get("timeframe"),
-                "timestamp": e["timestamp"][:16].replace("T", " "),
-                "outcome":   e.get("outcome", "pending"),
-                "notes":     e.get("notes", ""),
-            })
-    return jsonify({"success": False, "error": "Trade not found"}), 404
+    try:
+        row = db.get_trade(call_id)
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+    if not row:
+        return jsonify({"success": False, "error": "Trade not found"}), 404
+    ts   = (row.get("created_at") or "")[:16].replace("T", " ")
+    call = row.get("call") or {}
+    return jsonify({
+        "success":   True,
+        "call_id":   row["id"],
+        "call":      call,
+        "symbol":    row.get("symbol"),
+        "timeframe": row.get("timeframe"),
+        "timestamp": ts,
+        "outcome":   row.get("outcome", "pending"),
+        "notes":     row.get("notes", ""),
+    })
 
 
 if __name__ == "__main__":
     print("\n  ICT Co-pilot Dashboard")
     print("  ─────────────────────────")
-    print("  Open: http://localhost:5000\n")
-    app.run(debug=False, port=5000, host="127.0.0.1")
+    print("  Open: http://localhost:8080\n")
+    app.run(debug=False, port=8080, host="127.0.0.1")

@@ -72,8 +72,8 @@ Both answer "are options cheap or expensive *right now* vs. their own recent his
 
 ### (a) Plain-English mechanism
 Mean reversion bets that price, when stretched far from a reference "value," snaps back toward it. The references:
-- **VWAP** — the single most important intraday fair-value anchor; the price where the most volume traded today. This is the cleanest quant analog to **your IRL**.
-- **Bollinger / stdev bands** — the 20-period mean (midline) ± N standard deviations. Tag the outer band in a *non-trending* market → fade back to the midline. The band edges are statistical **ERL**; the midline is **IRL**.
+- **VWAP** — the single most important intraday fair-value anchor; the price where the most volume traded today. This is a **quant fair-value analog** — it functions *like* IRL in that price reverts to it, but it is NOT IRL. IRL is strictly FVGs per ICT framework. VWAP is a quant quality filter applied on top of ICT setups.
+- **Bollinger / stdev bands** — the 20-period mean (midline) ± N standard deviations. Tag the outer band in a *non-trending* market → fade back to the midline. The band edges are statistical **quant ERL analogs**; the midline is a **quant IRL analog**. These are regime quality filters, not replacements for ICT ERL/IRL definitions.
 - **IV-to-RV reversion (VRP)** — IV systematically *overshoots* subsequent realized volatility (the Volatility Risk Premium, IV − RV, averages ~2–4 vol points on SPX in normal regimes). After a vol *shock*, IV reverts down → realized ranges compress → range days return. This is mean reversion of *volatility itself*, and it front-runs your day-type shift.
 - **Overextension from value** — distance from VWAP/value-area as a stretch gauge.
 
@@ -86,7 +86,7 @@ Mean reversion bets that price, when stretched far from a reference "value," sna
 - **Free / charting:** VWAP and Bollinger Bands are native on TradingView (your platform). Add a VWAP-slope and band-width study for the regime filter.
 
 ### (c) Connect to your ICT framework
-- **VWAP = your IRL. Bollinger midline = your IRL. Band/stdev edges = your ERL.** Your model and a quant's mean-reversion model are the *same map with different labels*. A "discount IRL" tag is a price below VWAP that reverts up; a "premium ERL" sweep is a band-edge tag that reverses. You already trade this — the quant lens just gives you a **statistical confidence score and a regime filter** on top.
+- **VWAP and Bollinger are quant analogs, not ICT IRL/ERL equivalents.** ICT IRL = FVGs only. ICT ERL = previous Asia/London session highs/lows. VWAP and Bollinger midline serve a similar *functional* role (fair-value reference) but are separate tools used as regime quality filters on top of your ICT setup identification. A "discount IRL" tag is a price below VWAP that reverts up — this quant read layers *on top of* an ICT FVG entry, it does not replace it. The quant lens gives you a **statistical confidence score and a regime filter** on top of the ICT map.
 - **The regime filter resolves your hardest live question: range-revert-to-IRL vs. expand-to-ERL.** Combine the three lenses:
   - **VWAP/20-SMA flat + IV rank low + contango + positive GEX → RANGE DAY.** IRL holds, fade the ERL band edges back to VWAP. *Mean reversion is on.*
   - **VWAP/20-SMA sloping hard + IV rank high + backwardation + negative GEX → TREND/EXPANSION DAY.** IRL *fails*, price reaches for distant ERL. *Mean reversion is OFF; trade pullbacks-to-VWAP in trend direction only.*

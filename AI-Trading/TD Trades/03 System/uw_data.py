@@ -97,7 +97,7 @@ def summarize(ctx):
 
         parsed["tide"] = {"net_call": net_call, "net_put": net_put, "bias": tide_bias}
         sections.append(
-            f"### Market Tide (as of {entry.get('timestamp','now')[:16]})\n"
+            f"### Market Tide (as of {(entry.get('timestamp') or entry.get('date') or 'now')[:16]})\n"
             f"Net call premium : ${net_call:>12,.0f}\n"
             f"Net put premium  : ${net_put:>12,.0f}\n"
             f"Net volume       : {net_vol:>12,.0f}\n"

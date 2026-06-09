@@ -12,13 +12,13 @@
 - [ ] Impulsive candle below structure (neckline break)
 - [ ] IRL (fair value) identified above entry
 - [ ] ERL target visible above fair value
-- [ ] Can I set stop ~20p or prev wick?
+- [ ] Stop is structurally defined (below neckline or prev wick) and R:R is acceptable
 
 **If ALL checked:** TAKE REV MODEL  
 **Entry:** Flip candle off neckline  
-**SL:** ~20p below neckline or prev wick high  
-**PT1:** IRL (fair value)  
-**PT2:** ERL (premium)  
+**SL:** Below neckline or prev wick — scale with IV rank and GEX regime. Negative-GEX = multiply by ~1.5×. Never fixed pips.  
+**PT1:** IRL (scale 50%, move SL to BE)  
+**PT2:** ERL (run remaining position)  
 **Expected WR:** 85-90% (if done properly)
 
 ---
@@ -34,9 +34,9 @@
 
 **If ALL checked:** TAKE CONTINUATION  
 **Entry:** After retracement into IRL + conf  
-**SL:** Below structure low (or ~20p tight)  
-**PT1:** IRL  
-**PT2:** Full ERL  
+**SL:** Below structure low — scale with IV rank and GEX regime. Never fixed pips.  
+**PT1:** IRL (scale 50%, move SL to BE)  
+**PT2:** Full ERL (run remaining position)  
 **Expected WR:** Depends on HTF/LTF alignment
 
 ---
@@ -126,21 +126,21 @@ Example: Risk 1% per trade on $10k account = $100 max loss per trade
 ---
 
 **Stop Loss Placement:**
-(To be filled in by Zion)
 
-Rev Model: ~20p or prev wick  
-Continuation: Below structure low  
-IFVG: Beyond gap  
-MFD: Outside news high/low
+All stops are **structure-based and regime-adaptive — never fixed pips.**
+- Rev Model: Below neckline or prev wick, scaled by IV rank / GEX regime
+- Continuation: Below structure low, scaled by IV rank / GEX regime
+- IFVG: Beyond gap opposite side
+- MFD: Outside news high/low
+- Negative-GEX confirmed: multiply normal stop by ~1.5×
 
 ---
 
 **Take Profit Targets:**
-(To be filled in by Zion)
 
-PT1 (Scale 50%): ________  
-PT2 (Full Position): ________  
-SL Move to BE (when): ________  
+PT1 (Scale 50%): IRL (nearest internal FVG to current price)  
+PT2 (Run remaining position): ERL (previous Asia/London session high/low)  
+SL Move to BE: After PT1 is hit  
 
 ---
 
@@ -174,15 +174,11 @@ Draw: _________________________________
 
 ## ERL / IRL MARKING
 
-**How you mark ERL (external range high/low):**
-(To be filled in by Zion)
+**How you mark ERL (external range liquidity):**
+Previous Asia and London session highs/lows. Dynamic — update as new session ranges form. These are your outer draw targets.
 
-Draw: _________________________________
-
-**How you mark IRL (internal range high/low):**
-(To be filled in by Zion)
-
-Draw: _________________________________
+**How you mark IRL (internal range liquidity):**
+The nearest unmitigated FVG (3-candle gap) to current price. FVGs only — not order blocks, not VWAP. Updates continuously as gaps are filled. This is your entry zone.
 
 ---
 
