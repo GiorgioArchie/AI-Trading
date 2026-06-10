@@ -531,6 +531,76 @@
       text-align: center;
     }
 
+    /* ── Win Rate bar ─────────────────────────────────────────── */
+    .win-rate-block {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 14px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .win-rate-pct {
+      font-family: var(--mono);
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .win-rate-pct.positive { color: var(--green); }
+    .win-rate-pct.negative { color: var(--red); }
+    .win-rate-pct.neutral  { color: var(--muted); }
+    .win-rate-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .win-rate-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+    }
+    .win-rate-detail {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .win-rate-bar-wrap {
+      flex: 1;
+      min-width: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .win-rate-bar-track {
+      height: 6px;
+      background: var(--bg-card);
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .win-rate-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--green);
+      transition: width 0.4s ease;
+    }
+    .win-rate-counts {
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      font-family: var(--mono);
+    }
+    .win-rate-counts .w { color: var(--green); font-weight: 700; }
+    .win-rate-counts .l { color: var(--red);   font-weight: 700; }
+    .win-rate-counts .p { color: var(--yellow); }
+
     /* ── Error banner ─────────────────────────────────────────── */
     #error-banner {
       display: none;
@@ -1190,6 +1260,45 @@
         return;
       }
 
+      // Win rate — Long/Short only, resolved only (no NO TRADE, no pending)
+      const directional = entries.filter(e =>
+        (e.direction === 'Long' || e.direction === 'Short') &&
+        (e.outcome === 'correct' || e.outcome === 'incorrect')
+      );
+      const wins    = directional.filter(e => e.outcome === 'correct').length;
+      const losses  = directional.filter(e => e.outcome === 'incorrect').length;
+      const total   = directional.length;
+      const pending = entries.filter(e =>
+        (e.direction === 'Long' || e.direction === 'Short') && e.outcome === 'pending'
+      ).length;
+      const pct     = total > 0 ? Math.round((wins / total) * 100) : null;
+      const pctText = pct !== null ? pct + '%' : '—';
+      const pctCls  = pct === null ? 'neutral' : pct >= 50 ? 'positive' : 'negative';
+      const fillW   = pct !== null ? pct : 0;
+
+      const winRateHTML = `
+        <div class="win-rate-block">
+          <div>
+            <div class="win-rate-label">Win Rate</div>
+            <div class="win-rate-pct ${pctCls}">${pctText}</div>
+          </div>
+          <div class="win-rate-bar-wrap">
+            <div class="win-rate-bar-track">
+              <div class="win-rate-bar-fill" style="width:${fillW}%"></div>
+            </div>
+            <div class="win-rate-counts">
+              <span class="w">W ${wins}</span>
+              <span class="l">L ${losses}</span>
+              ${pending > 0 ? `<span class="p">${pending} pending</span>` : ''}
+              <span style="color:var(--muted)">${total} resolved</span>
+            </div>
+          </div>
+          <div class="win-rate-meta">
+            <div class="win-rate-label">Scope</div>
+            <div class="win-rate-detail">Long &amp; Short only</div>
+          </div>
+        </div>`;
+
       const rows = entries.map(e => {
         const oc = { correct: 'outcome-correct', incorrect: 'outcome-incorrect', pending: 'outcome-pending' }[e.outcome] || 'outcome-pending';
         const dirColor = e.direction === 'Long' ? 'color:var(--green)' : e.direction === 'Short' ? 'color:var(--red)' : '';
@@ -1203,7 +1312,7 @@
         </tr>`;
       }).join('');
 
-      container.innerHTML = `
+      container.innerHTML = winRateHTML + `
         <table class="history-table">
           <thead>
             <tr>
