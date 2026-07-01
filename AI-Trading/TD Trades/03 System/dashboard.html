@@ -53,67 +53,27 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 24px;
     }
-    .logo {
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: -0.3px;
-      color: var(--text);
-    }
+    .logo { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; color: var(--text); }
     .logo span { color: var(--blue); }
     .status-pill {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 4px 12px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      font-size: 12px;
-      font-family: var(--mono);
-      color: var(--muted);
-      background: var(--bg-card);
+      display: flex; align-items: center; gap: 7px;
+      padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border);
+      font-size: 12px; font-family: var(--mono); color: var(--muted); background: var(--bg-card);
     }
-    .status-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--muted);
-      transition: background 0.3s;
-    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background 0.3s; }
     .status-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
 
     /* ── Card ─────────────────────────────────────────────────── */
-    .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 16px;
-    }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
 
     /* ── Controls ─────────────────────────────────────────────── */
-    .controls {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
     .field { display: flex; flex-direction: column; gap: 5px; }
-    .field label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--muted);
-    }
+    .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
     select, input[type="text"] {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 8px 12px;
-      font-size: 13px;
-      font-family: inherit;
-      outline: none;
-      transition: border-color 0.2s;
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); padding: 8px 12px; font-size: 13px; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
     }
     select:focus, input[type="text"]:focus { border-color: var(--blue); }
     select { cursor: pointer; min-width: 160px; }
@@ -121,108 +81,44 @@
     input::placeholder { color: var(--muted); }
 
     .btn-analyze {
-      padding: 9px 24px;
-      background: var(--blue);
-      color: #0d1117;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.3px;
-      transition: opacity 0.2s, transform 0.1s;
-      white-space: nowrap;
-      align-self: flex-end;
+      padding: 9px 24px; background: var(--blue); color: #0d1117; border: none;
+      border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer;
+      letter-spacing: 0.3px; transition: opacity 0.2s, transform 0.1s;
+      white-space: nowrap; align-self: flex-end;
     }
     .btn-analyze:hover { opacity: 0.88; }
     .btn-analyze:active { transform: scale(0.97); }
     .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* ── Trade Call Card ──────────────────────────────────────── */
-    #result-card {
-      display: none;
-      border-left-width: 4px;
-    }
+    #result-card { display: none; border-left-width: 4px; }
     #result-card.take-trade { border-left-color: var(--green); }
     #result-card.no-trade   { border-left-color: var(--red); }
     #result-card.loading    { border-left-color: var(--yellow); }
 
-    .call-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .call-verdict {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
+    .call-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .call-verdict { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
     .verdict-take { color: var(--green); }
     .verdict-none { color: var(--red); }
     .verdict-loading { color: var(--yellow); }
 
-    .meta-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-    .badge-model    { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
-    .badge-long     { background: rgba(63,185,80,0.15);  color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
-    .badge-short    { background: rgba(248,81,73,0.15);  color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+    .meta-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+    .badge-model  { background: rgba(88,166,255,0.15); color: var(--blue);  border: 1px solid rgba(88,166,255,0.3); }
+    .badge-long   { background: rgba(63,185,80,0.15);  color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+    .badge-short  { background: rgba(248,81,73,0.15);  color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
 
-    /* ── Grade badge (large, in result card header) ───────────── */
-    .grade-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
+    /* ── Grade badge ──────────────────────────────────────────── */
+    .grade-block { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; }
     .grade-circle {
-      width: 68px;
-      height: 68px;
-      border-radius: 12px;
-      border: 2px solid;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--mono);
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      transition: all 0.2s;
+      width: 68px; height: 68px; border-radius: 12px; border: 2px solid;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 24px; font-weight: 800;
+      letter-spacing: -1px; transition: all 0.2s;
     }
-    .grade-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--muted);
-    }
-    .grade-reason {
-      font-size: 11px;
-      color: var(--muted);
-      font-style: italic;
-      margin-top: 8px;
-      padding: 8px 12px;
-      background: var(--bg-input);
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      line-height: 1.5;
-    }
+    .grade-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+    .grade-reason { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 8px; padding: 8px 12px; background: var(--bg-input); border-radius: 6px; border: 1px solid var(--border); line-height: 1.5; }
 
-    /* Grade colour families */
     .grade-a-plus  { color: #3fb950; border-color: #3fb950; background: rgba(63,185,80,0.12); }
     .grade-a       { color: #56d364; border-color: #56d364; background: rgba(86,211,100,0.10); }
     .grade-a-minus { color: #7ee787; border-color: #7ee787; background: rgba(126,231,135,0.08); }
@@ -234,194 +130,66 @@
     .grade-c-minus { color: #ff7b72; border-color: #ff7b72; background: rgba(255,123,114,0.08); }
     .grade-nt      { color: var(--muted); border-color: var(--border); background: var(--bg-input); }
 
-    /* Small grade badge for history table */
-    .grade-pill {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 800;
-      font-family: var(--mono);
-      border: 1px solid;
-    }
+    .grade-pill { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; font-family: var(--mono); border: 1px solid; }
 
     /* ── Action stack ─────────────────────────────────────────── */
-    .action-stack {
-      margin: 20px 0;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .action-row {
-      display: grid;
-      grid-template-columns: 36px 1fr;
-      gap: 0;
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
-    }
+    .action-stack { margin: 20px 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .action-row { display: grid; grid-template-columns: 36px 1fr; gap: 0; border-bottom: 1px solid var(--border); transition: background 0.15s; }
     .action-row:last-child { border-bottom: none; }
-
-    .action-icon-col {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      padding: 16px 0;
-      border-right: 1px solid var(--border);
-    }
-    .action-body {
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
+    .action-icon-col { display: flex; align-items: center; justify-content: center; font-size: 15px; padding: 16px 0; border-right: 1px solid var(--border); }
+    .action-body { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .action-text { flex: 1; min-width: 0; }
-    .action-tag {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.9px;
-      margin-bottom: 3px;
-    }
-    .action-instruction {
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-    .action-value {
-      font-family: var(--mono);
-      font-size: 14px;
-      font-weight: 700;
-      text-align: right;
-      max-width: 260px;
-      line-height: 1.4;
-      word-break: break-word;
-    }
+    .action-tag { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.9px; margin-bottom: 3px; }
+    .action-instruction { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .action-value { font-family: var(--mono); font-size: 14px; font-weight: 700; text-align: right; max-width: 260px; line-height: 1.4; word-break: break-word; }
 
-    /* Entry — blue */
     .action-row.ar-entry                  { background: rgba(88,166,255,0.04); }
-    .action-row.ar-entry .action-icon-col { color: var(--blue); background: rgba(88,166,255,0.08); }
+    .action-row.ar-entry .action-icon-col { color: var(--blue);  background: rgba(88,166,255,0.08); }
     .action-row.ar-entry .action-tag      { color: var(--blue); }
     .action-row.ar-entry .action-value    { color: var(--blue); }
 
-    /* Stop — red */
     .action-row.ar-stop                   { background: rgba(248,81,73,0.04); }
-    .action-row.ar-stop .action-icon-col  { color: var(--red); background: rgba(248,81,73,0.08); }
+    .action-row.ar-stop .action-icon-col  { color: var(--red);   background: rgba(248,81,73,0.08); }
     .action-row.ar-stop .action-tag       { color: var(--red); }
     .action-row.ar-stop .action-value     { color: var(--red); }
 
-    /* PT1 — medium green */
     .action-row.ar-pt1                    { background: rgba(63,185,80,0.04); }
     .action-row.ar-pt1 .action-icon-col   { color: var(--green); background: rgba(63,185,80,0.08); }
     .action-row.ar-pt1 .action-tag        { color: var(--green); }
     .action-row.ar-pt1 .action-value      { color: var(--green); }
 
-    /* PT2 — bright green */
     .action-row.ar-pt2                    { background: rgba(63,185,80,0.08); }
     .action-row.ar-pt2 .action-icon-col   { color: var(--green); background: rgba(63,185,80,0.14); }
     .action-row.ar-pt2 .action-tag        { color: var(--green); }
     .action-row.ar-pt2 .action-value      { color: var(--green); font-size: 15px; }
 
-    .no-trade-reason {
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.6;
-      padding: 14px;
-      background: var(--bg-input);
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      margin: 16px 0;
-    }
+    .no-trade-reason { font-size: 14px; color: var(--muted); line-height: 1.6; padding: 14px; background: var(--bg-input); border-radius: 6px; border: 1px solid var(--border); margin: 16px 0; }
 
     /* ── Reasoning accordion ──────────────────────────────────── */
     .reasoning-toggle {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--muted);
-      cursor: pointer;
-      padding: 8px 14px;
-      font-size: 12px;
-      font-family: inherit;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: border-color 0.2s, color 0.2s;
-      margin-top: 4px;
+      background: none; border: 1px solid var(--border); border-radius: 6px; color: var(--muted);
+      cursor: pointer; padding: 8px 14px; font-size: 12px; font-family: inherit;
+      display: flex; align-items: center; gap: 6px; transition: border-color 0.2s, color 0.2s; margin-top: 4px;
     }
     .reasoning-toggle:hover { border-color: var(--border-hover); color: var(--text); }
     .chevron { transition: transform 0.2s; display: inline-block; }
     .chevron.open { transform: rotate(90deg); }
-
-    .reasoning-body {
-      display: none;
-      margin-top: 12px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      overflow: hidden;
-    }
+    .reasoning-body { display: none; margin-top: 12px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
     .reasoning-body.open { display: block; }
-
-    .reasoning-row {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      border-bottom: 1px solid var(--border);
-    }
+    .reasoning-row { display: grid; grid-template-columns: 120px 1fr; border-bottom: 1px solid var(--border); }
     .reasoning-row:last-child { border-bottom: none; }
-    .reasoning-key {
-      padding: 10px 14px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--muted);
-      background: var(--bg-input);
-      border-right: 1px solid var(--border);
-      display: flex;
-      align-items: flex-start;
-    }
-    .reasoning-val {
-      padding: 10px 14px;
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.5;
-    }
-    .confluence-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .reasoning-key { padding: 10px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); background: var(--bg-input); border-right: 1px solid var(--border); display: flex; align-items: flex-start; }
+    .reasoning-val { padding: 10px 14px; font-size: 13px; color: var(--text); line-height: 1.5; }
+    .confluence-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
     .confluence-list li::before { content: '• '; color: var(--green); }
 
     /* ── Feedback section ─────────────────────────────────────── */
-    #feedback-section {
-      display: none;
-      margin-top: 16px;
-    }
-    .feedback-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-    .feedback-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    #feedback-section { display: none; margin-top: 16px; }
+    .feedback-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 10px; }
+    .feedback-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
     .btn-correct, .btn-incorrect {
-      padding: 10px 28px;
-      border: none;
-      border-radius: 6px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      letter-spacing: 0.3px;
-      transition: opacity 0.2s, transform 0.1s;
+      padding: 10px 28px; border: none; border-radius: 6px; font-size: 13px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.3px; transition: opacity 0.2s, transform 0.1s;
     }
     .btn-correct:active, .btn-incorrect:active { transform: scale(0.97); }
     .btn-correct:disabled, .btn-incorrect:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -430,235 +198,92 @@
     .btn-correct:hover:not(:disabled)   { background: rgba(63,185,80,0.2); }
     .btn-incorrect:hover:not(:disabled) { background: rgba(248,81,73,0.2); }
 
-    .notes-row {
-      display: none;
-      margin-top: 12px;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .notes-row.visible { display: flex; }
-    .notes-row input {
-      flex: 1;
-      min-width: 200px;
-    }
     .btn-submit-notes {
-      padding: 8px 18px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 13px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: border-color 0.2s;
+      padding: 8px 18px; background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); font-size: 13px; cursor: pointer;
+      font-family: inherit; transition: border-color 0.2s;
     }
     .btn-submit-notes:hover { border-color: var(--border-hover); }
 
+    /* ── PT outcome selectors ─────────────────────────────────── */
+    #feedback-detail {
+      margin-top: 12px; padding: 14px; background: var(--bg-input);
+      border: 1px solid var(--border); border-radius: 8px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .pt-selector-row { display: flex; align-items: center; gap: 8px; }
+    .pt-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); width: 28px; flex-shrink: 0; }
+    .pt-btn {
+      padding: 3px 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--bg-card); color: var(--muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; font-family: inherit; transition: all 0.15s;
+    }
+    .pt-btn:hover:not(.active) { border-color: var(--border-hover); color: var(--text); }
+    .pt-btn.pt-hit.active  { background: var(--green-dim); color: var(--green); border-color: rgba(63,185,80,0.5); }
+    .pt-btn.pt-miss.active { background: var(--red-dim);   color: var(--red);   border-color: rgba(248,81,73,0.5); }
+    .pt-notes-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .pt-notes-row input { flex: 1; min-width: 180px; }
+
     .feedback-confirm {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      padding: 10px 14px;
-      border-radius: 6px;
+      display: none; align-items: center; gap: 8px; font-size: 13px;
+      padding: 10px 14px; border-radius: 6px;
     }
     .feedback-confirm.correct   { background: var(--green-dim); color: var(--green); }
     .feedback-confirm.incorrect { background: var(--red-dim);   color: var(--red); }
 
     /* ── Loading spinner ──────────────────────────────────────── */
-    .spinner {
-      display: inline-block;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(210,153,34,0.3);
-      border-top-color: var(--yellow);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-    }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(210,153,34,0.3); border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── History ──────────────────────────────────────────────── */
-    .section-title {
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-    .history-table th {
-      text-align: left;
-      padding: 6px 10px;
-      color: var(--muted);
-      font-weight: 600;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 1px solid var(--border);
-    }
-    .history-table td {
-      padding: 8px 10px;
-      border-bottom: 1px solid rgba(48,54,61,0.5);
-      font-family: var(--mono);
-      vertical-align: middle;
-    }
+    .section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); margin-bottom: 12px; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .history-table th { text-align: left; padding: 6px 10px; color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+    .history-table td { padding: 8px 10px; border-bottom: 1px solid rgba(48,54,61,0.5); font-family: var(--mono); vertical-align: middle; }
     .history-table tr:last-child td { border-bottom: none; }
     .history-table tr:hover td { background: rgba(255,255,255,0.02); }
 
-    .outcome-badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    .outcome-badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .outcome-correct   { background: var(--green-dim); color: var(--green); }
     .outcome-incorrect { background: var(--red-dim);   color: var(--red); }
     .outcome-pending   { background: var(--yellow-dim); color: var(--yellow); }
 
-    .empty-history {
-      color: var(--muted);
-      font-size: 13px;
-      padding: 12px 0;
-      text-align: center;
-    }
+    .empty-history { color: var(--muted); font-size: 13px; padding: 12px 0; text-align: center; }
 
     /* ── Win Rate bar ─────────────────────────────────────────── */
     .win-rate-block {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 14px 16px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
+      display: flex; align-items: center; gap: 20px; padding: 14px 16px;
+      background: var(--bg-input); border: 1px solid var(--border); border-radius: 8px;
+      margin-bottom: 16px; flex-wrap: wrap;
     }
-    .win-rate-pct {
-      font-family: var(--mono);
-      font-size: 32px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      line-height: 1;
-      flex-shrink: 0;
-    }
+    .win-rate-pct { font-family: var(--mono); font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1; flex-shrink: 0; }
     .win-rate-pct.positive { color: var(--green); }
     .win-rate-pct.negative { color: var(--red); }
     .win-rate-pct.neutral  { color: var(--muted); }
-    .win-rate-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .win-rate-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--muted);
-    }
-    .win-rate-detail {
-      font-size: 12px;
-      color: var(--muted);
-      font-family: var(--mono);
-    }
-    .win-rate-bar-wrap {
-      flex: 1;
-      min-width: 120px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .win-rate-bar-track {
-      height: 6px;
-      background: var(--bg-card);
-      border-radius: 3px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-    }
-    .win-rate-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      background: var(--green);
-      transition: width 0.4s ease;
-    }
-    .win-rate-counts {
-      display: flex;
-      gap: 14px;
-      font-size: 11px;
-      font-family: var(--mono);
-    }
+    .win-rate-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); }
+    .win-rate-bar-wrap { flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 5px; }
+    .win-rate-bar-track { height: 6px; background: var(--bg-card); border-radius: 3px; overflow: hidden; border: 1px solid var(--border); }
+    .win-rate-bar-fill { height: 100%; border-radius: 3px; background: var(--green); transition: width 0.4s ease; }
+    .win-rate-counts { display: flex; gap: 14px; font-size: 11px; font-family: var(--mono); }
     .win-rate-counts .w { color: var(--green); font-weight: 700; }
     .win-rate-counts .l { color: var(--red);   font-weight: 700; }
     .win-rate-counts .p { color: var(--yellow); }
 
     /* ── Error banner ─────────────────────────────────────────── */
-    #error-banner {
-      display: none;
-      background: var(--red-dim);
-      border: 1px solid rgba(248,81,73,0.4);
-      border-radius: 6px;
-      color: var(--red);
-      padding: 12px 16px;
-      font-size: 13px;
-      margin-bottom: 16px;
-    }
+    #error-banner { display: none; background: var(--red-dim); border: 1px solid rgba(248,81,73,0.4); border-radius: 6px; color: var(--red); padding: 12px 16px; font-size: 13px; margin-bottom: 16px; }
 
     /* ── R:R badge ───────────────────────────────────────────── */
-    .rr-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--bg-input);
-      margin: 16px 0 4px;
-      font-family: var(--mono);
-    }
-    .rr-badge .rr-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      color: var(--muted);
-    }
-    .rr-badge .rr-value {
-      font-size: 20px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-    .rr-badge .rr-min {
-      font-size: 11px;
-      color: var(--muted);
-    }
+    .rr-badge { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); margin: 16px 0 4px; font-family: var(--mono); }
+    .rr-badge .rr-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); }
+    .rr-badge .rr-value { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .rr-badge .rr-min   { font-size: 11px; color: var(--muted); }
     .rr-badge.pass { border-color: rgba(63,185,80,0.4);  background: var(--green-dim); }
     .rr-badge.pass .rr-value { color: var(--green); }
     .rr-badge.fail { border-color: rgba(248,81,73,0.4);  background: var(--red-dim); }
     .rr-badge.fail .rr-value { color: var(--red); }
 
     /* ── UW strip pills ──────────────────────────────────────── */
-    .uw-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
+    .uw-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; background: var(--bg-input); border: 1px solid var(--border); color: var(--text); }
     .uw-pill.bullish { border-color: rgba(63,185,80,0.4);  color: var(--green); background: var(--green-dim); }
     .uw-pill.bearish { border-color: rgba(248,81,73,0.4);  color: var(--red);   background: var(--red-dim); }
     .uw-pill.neutral { border-color: rgba(210,153,34,0.4); color: var(--yellow); background: var(--yellow-dim); }
@@ -667,33 +292,31 @@
     .selector-row { display: flex; gap: 10px; align-items: flex-end; }
     #trade-selector { flex: 1; font-family: var(--mono); font-size: 12px; }
     .btn-load-trade {
-      padding: 9px 18px;
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 13px;
-      font-family: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: border-color 0.2s;
+      padding: 9px 18px; background: var(--bg-input); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); font-size: 13px; font-family: inherit;
+      cursor: pointer; white-space: nowrap; transition: border-color 0.2s;
     }
     .btn-load-trade:hover { border-color: var(--border-hover); }
 
     /* ── Current outcome row ──────────────────────────────────── */
-    .current-outcome-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      margin-bottom: 10px;
-      font-size: 12px;
-    }
+    .current-outcome-row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); margin-bottom: 10px; font-size: 12px; }
     .current-outcome-row.correct   { border-color: rgba(63,185,80,0.4);  background: var(--green-dim); color: var(--green); }
     .current-outcome-row.incorrect { border-color: rgba(248,81,73,0.4);  background: var(--red-dim);   color: var(--red); }
     .current-outcome-row.pending   { border-color: rgba(210,153,34,0.4); background: var(--yellow-dim); color: var(--yellow); }
+
+    /* ── Risk badge ───────────────────────────────────────────── */
+    .risk-badge {
+      display: inline-flex; flex-direction: column; align-items: center; gap: 2px;
+      padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--bg-input); font-family: var(--mono); min-width: 68px; text-align: center;
+    }
+    .risk-badge .risk-amt { font-size: 16px; font-weight: 800; letter-spacing: -0.5px; }
+    .risk-badge .risk-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); }
+    .risk-badge .risk-pts { font-size: 10px; color: var(--muted); }
+    .risk-badge.ok   { border-color: rgba(63,185,80,0.4);  background: var(--green-dim); }
+    .risk-badge.ok   .risk-amt { color: var(--green); }
+    .risk-badge.over { border-color: rgba(210,153,34,0.4); background: var(--yellow-dim); }
+    .risk-badge.over .risk-amt { color: var(--yellow); }
 
     /* ── Divider ──────────────────────────────────────────────── */
     .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
@@ -725,9 +348,19 @@
         <label>Gamma override</label>
         <input type="text" id="gamma-input" placeholder="Auto (from UW)" />
       </div>
+      <div class="field">
+        <label>Contracts</label>
+        <input type="number" id="contracts-input" value="1" min="1" max="20" style="min-width:80px;" oninput="updateRiskDisplay()" />
+      </div>
       <button class="btn-analyze" id="btn-analyze" onclick="analyzeSetup()">
         Analyze Setup
       </button>
+    </div>
+
+    <!-- Risk display -->
+    <div id="risk-display" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-family:var(--mono);">
+      <span style="color:var(--red);font-weight:700;">$500 max loss</span>
+      <span id="risk-detail">· 1 contract · max 25 pts (NQ) / 10 pts (ES)</span>
     </div>
 
     <!-- UW live status strip -->
@@ -765,9 +398,16 @@
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
         <div id="call-timestamp" style="font-size:11px;color:var(--muted);font-family:var(--mono);"></div>
-        <div class="grade-block">
-          <div class="grade-circle grade-nt" id="grade-circle">—</div>
-          <div class="grade-label">Confidence</div>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <div class="grade-block">
+            <div class="grade-circle grade-nt" id="grade-circle">—</div>
+            <div class="grade-label">Confidence</div>
+          </div>
+          <div class="risk-badge" id="risk-badge" style="display:none;">
+            <div class="risk-lbl">$ Risk</div>
+            <div class="risk-amt" id="risk-amt">—</div>
+            <div class="risk-pts" id="risk-pts">—</div>
+          </div>
         </div>
       </div>
     </div>
@@ -777,7 +417,6 @@
 
     <!-- Action stack -->
     <div class="action-stack" id="action-stack" style="display:none;">
-
       <div class="action-row ar-entry">
         <div class="action-icon-col">&#9654;</div>
         <div class="action-body">
@@ -788,7 +427,6 @@
           <div class="action-value" id="lv-entry">—</div>
         </div>
       </div>
-
       <div class="action-row ar-stop">
         <div class="action-icon-col">&#10005;</div>
         <div class="action-body">
@@ -799,7 +437,6 @@
           <div class="action-value" id="lv-stop">—</div>
         </div>
       </div>
-
       <div class="action-row ar-pt1">
         <div class="action-icon-col">&#10003;</div>
         <div class="action-body">
@@ -810,7 +447,6 @@
           <div class="action-value" id="lv-pt1">—</div>
         </div>
       </div>
-
       <div class="action-row ar-pt2">
         <div class="action-icon-col">&#9679;</div>
         <div class="action-body">
@@ -821,14 +457,13 @@
           <div class="action-value" id="lv-pt2">—</div>
         </div>
       </div>
-
     </div>
 
     <!-- R:R badge -->
     <div id="rr-badge" class="rr-badge" style="display:none;">
       <span class="rr-label">R:R</span>
       <span class="rr-value" id="rr-value">—</span>
-      <span class="rr-min">min 2.5</span>
+      <span class="rr-min">min 0.85 PT1</span>
     </div>
 
     <!-- Reasoning accordion -->
@@ -846,13 +481,28 @@
       <div class="current-outcome-row" id="current-outcome-row" style="display:none;"></div>
       <div class="feedback-label">Was this call correct?</div>
       <div class="feedback-buttons">
-        <button class="btn-correct"   id="btn-correct"   onclick="submitFeedback('correct')">✓ Correct</button>
-        <button class="btn-incorrect" id="btn-incorrect" onclick="showNotesInput()">✗ Incorrect</button>
+        <button class="btn-correct"   id="btn-correct"   onclick="showFeedbackDetail('correct')">✓ Correct</button>
+        <button class="btn-incorrect" id="btn-incorrect" onclick="showFeedbackDetail('incorrect')">✗ Incorrect</button>
       </div>
-      <div class="notes-row" id="notes-row">
-        <input type="text" id="notes-input" placeholder="What was wrong? (optional)" />
-        <button class="btn-submit-notes" onclick="submitFeedback('incorrect')">Submit</button>
+
+      <!-- Expanded detail panel -->
+      <div id="feedback-detail" style="display:none;">
+        <div class="pt-selector-row">
+          <span class="pt-label">PT1</span>
+          <button class="pt-btn pt-hit"  id="pt1-hit"  onclick="togglePT('pt1','hit')">Hit</button>
+          <button class="pt-btn pt-miss" id="pt1-miss" onclick="togglePT('pt1','miss')">Miss</button>
+        </div>
+        <div class="pt-selector-row">
+          <span class="pt-label">PT2</span>
+          <button class="pt-btn pt-hit"  id="pt2-hit"  onclick="togglePT('pt2','hit')">Hit</button>
+          <button class="pt-btn pt-miss" id="pt2-miss" onclick="togglePT('pt2','miss')">Miss</button>
+        </div>
+        <div class="pt-notes-row">
+          <input type="text" id="notes-input" placeholder="Notes (optional)" />
+          <button class="btn-submit-notes" onclick="submitFeedback()">Submit</button>
+        </div>
       </div>
+
       <div class="feedback-confirm" id="feedback-confirm"></div>
     </div>
 
@@ -871,7 +521,10 @@
 <script>
   let currentCallId  = null;
   let reasoningOpen  = false;
-  let historyCache   = [];   // full history with call data
+  let historyCache   = [];
+  let pendingOutcome = null;
+  let pt1State       = null;
+  let pt2State       = null;
 
   // ── On load ──────────────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', () => {
@@ -888,23 +541,18 @@
     const flowEl   = document.getElementById('uw-flow');
     const regimeEl = document.getElementById('uw-regime');
 
-    // Tide
     if (uw.tide) {
       const bias = uw.tide.bias || '';
       const cls  = bias.includes('BULLISH') ? 'bullish' : bias.includes('BEARISH') ? 'bearish' : 'neutral';
       tideEl.textContent = '⟳ Tide: ' + (bias.split('—')[0].trim() || bias);
       tideEl.className   = 'uw-pill ' + cls;
     }
-
-    // Flow dominance
     if (uw.flow) {
       const dom = uw.flow.dominance || '';
       const cls = dom.includes('CALL') ? 'bullish' : dom.includes('PUT') ? 'bearish' : 'neutral';
       flowEl.textContent = '⚡ ' + (dom.split('(')[0].trim() || dom);
       flowEl.className   = 'uw-pill ' + cls;
     }
-
-    // Regime
     if (uw.regime_estimate) {
       const r   = uw.regime_estimate;
       const cls = r.includes('BULLISH') ? 'bullish' : r.includes('BEARISH') ? 'bearish' : 'neutral';
@@ -917,11 +565,7 @@
   function updateStatus(data) {
     const dot  = document.getElementById('status-dot');
     const text = document.getElementById('status-text');
-    if (!data) {
-      dot.className  = 'status-dot';
-      text.textContent = 'Not connected';
-      return;
-    }
+    if (!data) { dot.className = 'status-dot'; text.textContent = 'Not connected'; return; }
     dot.className    = 'status-dot connected';
     text.textContent = `${data.symbol} @ ${data.timeframe}m`;
   }
@@ -932,27 +576,24 @@
     el.textContent = '⚠ ' + msg;
     el.style.display = 'block';
   }
-  function clearError() {
-    document.getElementById('error-banner').style.display = 'none';
-  }
+  function clearError() { document.getElementById('error-banner').style.display = 'none'; }
 
   // ── Analyze ──────────────────────────────────────────────────
   async function analyzeSetup() {
     clearError();
-    const btn           = document.getElementById('btn-analyze');
-    const newsVal       = document.getElementById('news-input').value.trim() || 'none';
-    const gammaVal      = document.getElementById('gamma-input').value.trim();
+    const btn       = document.getElementById('btn-analyze');
+    const newsVal   = document.getElementById('news-input').value.trim() || 'none';
+    const gammaVal  = document.getElementById('gamma-input').value.trim();
+    const contracts = parseInt(document.getElementById('contracts-input').value) || 1;
 
-    btn.disabled     = true;
-    btn.innerHTML    = '<span class="spinner"></span> Analyzing…';
-
+    btn.disabled  = true;
+    btn.innerHTML = '<span class="spinner"></span> Analyzing…';
     showLoadingCard();
 
     try {
       const res  = await fetch('/api/analyze', {
-        method:  'POST',
-        headers: {'Content-Type': 'application/json'},
-        body:    JSON.stringify({ news_context: newsVal, gamma_override: gammaVal }),
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ news_context: newsVal, gamma_override: gammaVal, contracts }),
       });
       const data = await res.json();
 
@@ -984,39 +625,36 @@
     card.className     = 'card loading';
     document.getElementById('call-verdict').innerHTML =
       '<span class="verdict-loading"><span class="spinner"></span> Analyzing…</span>';
-    document.getElementById('meta-row').innerHTML         = '';
-    document.getElementById('no-trade-reason').style.display = 'none';
-    document.getElementById('action-stack').style.display    = 'none';
-    document.getElementById('reasoning-section').style.display = 'none';
-    document.getElementById('feedback-section').style.display  = 'none';
-    document.getElementById('feedback-divider').style.display  = 'none';
-    document.getElementById('feedback-confirm').style.display  = 'none';
+    document.getElementById('meta-row').innerHTML             = '';
+    document.getElementById('risk-badge').style.display       = 'none';
+    document.getElementById('no-trade-reason').style.display  = 'none';
+    document.getElementById('action-stack').style.display     = 'none';
+    document.getElementById('reasoning-section').style.display= 'none';
+    document.getElementById('feedback-section').style.display = 'none';
+    document.getElementById('feedback-divider').style.display = 'none';
+    document.getElementById('feedback-confirm').style.display = 'none';
   }
 
-  function hideResultCard() {
-    document.getElementById('result-card').style.display = 'none';
-  }
+  function hideResultCard() { document.getElementById('result-card').style.display = 'none'; }
 
   function renderCall(call, callId, existingOutcome, existingNotes, overrideTimestamp) {
     const card = document.getElementById('result-card');
 
-    // If JSON parsing failed, Claude returned plain text — show it clearly
     if (call.raw_response !== undefined) {
-      card.className   = 'card loading';
+      card.className = 'card loading';
       card.style.display = 'block';
-      document.getElementById('call-verdict').innerHTML =
-        '<span class="verdict-none">⚠ Parse Error</span>';
+      document.getElementById('call-verdict').innerHTML = '<span class="verdict-none">⚠ Parse Error</span>';
       document.getElementById('meta-row').innerHTML = '';
       document.getElementById('grade-circle').textContent = '?';
       document.getElementById('grade-circle').className   = 'grade-circle grade-nt';
       document.getElementById('grade-reason').style.display = 'none';
       document.getElementById('no-trade-reason').textContent =
         'Claude response could not be parsed as JSON. Raw output:\n\n' + call.raw_response;
-      document.getElementById('no-trade-reason').style.display = 'block';
-      document.getElementById('action-stack').style.display    = 'none';
-      document.getElementById('reasoning-section').style.display = 'none';
-      document.getElementById('feedback-divider').style.display  = 'none';
-      document.getElementById('feedback-section').style.display  = 'none';
+      document.getElementById('no-trade-reason').style.display  = 'block';
+      document.getElementById('action-stack').style.display     = 'none';
+      document.getElementById('reasoning-section').style.display= 'none';
+      document.getElementById('feedback-divider').style.display = 'none';
+      document.getElementById('feedback-section').style.display = 'none';
       document.getElementById('call-timestamp').textContent = overrideTimestamp || '';
       return;
     }
@@ -1025,7 +663,6 @@
     card.className  = 'card ' + (isNoTrade ? 'no-trade' : 'take-trade');
     card.style.display = 'block';
 
-    // Verdict
     const verdictEl = document.getElementById('call-verdict');
     if (isNoTrade) {
       verdictEl.innerHTML = '<span class="verdict-none">⊘ NO TRADE</span>';
@@ -1035,13 +672,11 @@
       verdictEl.innerHTML = `<span class="${cls}">${arrow} ${call.direction?.toUpperCase()} — ${call.model}</span>`;
     }
 
-    // Timestamp
     const ts = overrideTimestamp || (callId
       ? callId.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3  $4:$5')
       : '');
     document.getElementById('call-timestamp').textContent = ts;
 
-    // Meta badges
     const metaRow = document.getElementById('meta-row');
     const badges  = [];
     if (!isNoTrade) {
@@ -1051,13 +686,11 @@
     }
     metaRow.innerHTML = badges.join('');
 
-    // Grade circle
-    const conf = call.confidence || 'NO TRADE';
+    const conf    = call.confidence || 'NO TRADE';
     const gradeEl = document.getElementById('grade-circle');
     gradeEl.textContent = conf;
     gradeEl.className   = 'grade-circle ' + gradeClass(conf);
 
-    // Grade reason
     const gradeReason = document.getElementById('grade-reason');
     if (call.confidence_reason) {
       gradeReason.textContent  = call.confidence_reason;
@@ -1066,7 +699,19 @@
       gradeReason.style.display = 'none';
     }
 
-    // NO TRADE reason
+    // Risk badge
+    const riskBadge = document.getElementById('risk-badge');
+    if (call.risk) {
+      const r = call.risk;
+      riskBadge.style.display = 'inline-flex';
+      riskBadge.className     = 'risk-badge ' + (r.fits_budget ? 'ok' : 'over');
+      document.getElementById('risk-amt').textContent = r.dollar_risk != null ? '$' + r.dollar_risk : '—';
+      document.getElementById('risk-pts').textContent = r.stop_pts   != null ? r.stop_pts + ' pts' : '—';
+      riskBadge.title = r.note || '';
+    } else {
+      riskBadge.style.display = 'none';
+    }
+
     const ntReason = document.getElementById('no-trade-reason');
     if (isNoTrade) {
       ntReason.textContent   = call.no_trade_reason || 'No valid setup.';
@@ -1077,18 +722,29 @@
       renderLevels(call);
     }
 
-    // Reasoning
+    // R:R badge
+    const rrBadge = document.getElementById('rr-badge');
+    const rrValue = document.getElementById('rr-value');
+    if (call.rr_ratio != null) {
+      rrBadge.style.display = 'inline-flex';
+      rrValue.textContent   = call.rr_ratio;
+      rrBadge.className     = 'rr-badge ' + (call.rr_ratio >= 0.85 ? 'pass' : 'fail');
+    } else {
+      rrBadge.style.display = 'none';
+    }
+
     renderReasoning(call.reasoning || {});
     document.getElementById('reasoning-section').style.display = 'block';
 
-    // Feedback — show existing outcome if present, always allow changing
-    document.getElementById('feedback-divider').style.display = 'block';
-    document.getElementById('feedback-section').style.display = 'block';
-    document.getElementById('btn-correct').disabled   = false;
-    document.getElementById('btn-incorrect').disabled = false;
-    document.getElementById('notes-row').className    = 'notes-row';
-    document.getElementById('notes-input').value      = '';
-    document.getElementById('feedback-confirm').style.display = 'none';
+    document.getElementById('feedback-divider').style.display  = 'block';
+    document.getElementById('feedback-section').style.display  = 'block';
+    document.getElementById('btn-correct').disabled            = false;
+    document.getElementById('btn-incorrect').disabled          = false;
+    document.getElementById('feedback-detail').style.display   = 'none';
+    document.getElementById('notes-input').value               = '';
+    document.getElementById('feedback-confirm').style.display  = 'none';
+    pendingOutcome = null; pt1State = null; pt2State = null;
+    updatePTButtons();
 
     const ocRow = document.getElementById('current-outcome-row');
     if (existingOutcome && existingOutcome !== 'pending') {
@@ -1102,7 +758,6 @@
       ocRow.style.display = 'none';
     }
 
-    // Sync dropdown to loaded trade
     const sel = document.getElementById('trade-selector');
     if (callId && sel) sel.value = callId;
   }
@@ -1116,23 +771,21 @@
   }
 
   function renderReasoning(r) {
-    const body  = document.getElementById('reasoning-body');
-    const rows  = [
-      ['HTF Bias',    r.htf_bias       || '—'],
-      ['DOL',         r.dol            || '—'],
-      ['ERL',         r.erl            || '—'],
-      ['IRL',         r.irl            || '—'],
-      ['Model',       r.model_forming  || '—'],
-      ['Gamma',       r.layer_c_gamma  || '—'],
-      ['News',        r.layer_b_news   || '—'],
+    const body = document.getElementById('reasoning-body');
+    const rows = [
+      ['HTF Bias', r.htf_bias      || '—'],
+      ['DOL',      r.dol           || '—'],
+      ['ERL',      r.erl           || '—'],
+      ['IRL',      r.irl           || '—'],
+      ['Model',    r.model_forming || '—'],
+      ['Gamma',    r.layer_c_gamma || '—'],
+      ['News',     r.layer_b_news  || '—'],
     ];
-
     let html = rows.map(([k, v]) => `
       <div class="reasoning-row">
         <div class="reasoning-key">${k}</div>
         <div class="reasoning-val">${escHtml(v)}</div>
       </div>`).join('');
-
     const confluences = r.confluences || [];
     if (confluences.length) {
       const items = confluences.map(c => `<li>${escHtml(c)}</li>`).join('');
@@ -1142,9 +795,7 @@
         <div class="reasoning-val"><ul class="confluence-list">${items}</ul></div>
       </div>`;
     }
-
     body.innerHTML = html;
-    // Reset accordion state
     reasoningOpen = false;
     document.getElementById('chevron').className = 'chevron';
     body.className = 'reasoning-body';
@@ -1157,51 +808,74 @@
     const chev = document.getElementById('chevron');
     body.className = 'reasoning-body' + (reasoningOpen ? ' open' : '');
     chev.className = 'chevron' + (reasoningOpen ? ' open' : '');
-    btn.querySelector('span:last-child') && null;
     btn.childNodes[1].textContent = (reasoningOpen ? ' Hide' : ' Show') + ' Reasoning';
   }
 
   // ── Feedback ─────────────────────────────────────────────────
-  function showNotesInput() {
-    document.getElementById('notes-row').className = 'notes-row visible';
-    document.getElementById('notes-input').focus();
+  function showFeedbackDetail(outcome) {
+    pendingOutcome = outcome;
+    pt1State = null;
+    pt2State = null;
+    updatePTButtons();
+    const input = document.getElementById('notes-input');
+    input.value       = '';
+    input.placeholder = outcome === 'correct' ? 'Notes (optional)' : 'What was wrong? (optional)';
+    document.getElementById('feedback-detail').style.display = 'flex';
+    input.focus();
   }
 
-  async function submitFeedback(outcome) {
-    if (!currentCallId) return;
-    const notes = document.getElementById('notes-input').value.trim();
+  function togglePT(pt, state) {
+    if (pt === 'pt1') pt1State = pt1State === state ? null : state;
+    else              pt2State = pt2State === state ? null : state;
+    updatePTButtons();
+  }
 
+  function updatePTButtons() {
+    for (const [pt, s] of [['pt1', pt1State], ['pt2', pt2State]]) {
+      document.getElementById(`${pt}-hit`).classList.toggle('active', s === 'hit');
+      document.getElementById(`${pt}-miss`).classList.toggle('active', s === 'miss');
+    }
+  }
+
+  async function submitFeedback() {
+    if (!currentCallId || !pendingOutcome) return;
+    let notes = document.getElementById('notes-input').value.trim();
+
+    const ptParts = [];
+    if (pt1State) ptParts.push(`PT1 ${pt1State}`);
+    if (pt2State) ptParts.push(`PT2 ${pt2State}`);
+    if (ptParts.length) notes = '[' + ptParts.join(', ') + ']' + (notes ? '  ' + notes : '');
+
+    const outcome = pendingOutcome;
     document.getElementById('btn-correct').disabled   = true;
     document.getElementById('btn-incorrect').disabled = true;
 
     try {
       await fetch('/api/feedback', {
-        method:  'POST',
-        headers: {'Content-Type': 'application/json'},
-        body:    JSON.stringify({ call_id: currentCallId, outcome, notes }),
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ call_id: currentCallId, outcome, notes }),
       });
 
       const confirm = document.getElementById('feedback-confirm');
       confirm.className   = 'feedback-confirm ' + outcome;
-      confirm.textContent = outcome === 'correct'
-        ? '✓ Saved as correct — model will learn from this'
-        : '✗ Saved as incorrect' + (notes ? ` — "${notes}"` : '') + ' — model will learn from this';
+      confirm.textContent = (outcome === 'correct' ? '✓ Saved as correct' : '✗ Saved as incorrect')
+        + (notes ? ` — "${notes}"` : '') + ' — model will learn from this';
       confirm.style.display = 'flex';
 
-      // Update the current-outcome row to reflect the new state
       const ocRow = document.getElementById('current-outcome-row');
       const icon  = outcome === 'correct' ? '✓' : '✗';
       const label = outcome === 'correct' ? 'Marked correct' : 'Marked incorrect';
-      const note  = notes ? ` — "${notes}"` : '';
       ocRow.className   = 'current-outcome-row ' + outcome;
-      ocRow.textContent = `${icon} ${label}${note}  ·  Click a button below to change`;
+      ocRow.textContent = `${icon} ${label}${notes ? ` — "${notes}"` : ''}  ·  Click a button below to change`;
       ocRow.style.display = 'flex';
 
-      document.getElementById('notes-row').className = 'notes-row';
+      document.getElementById('feedback-detail').style.display = 'none';
       loadHistory();
 
     } catch (err) {
       showError('Could not save feedback.');
+      document.getElementById('btn-correct').disabled   = false;
+      document.getElementById('btn-incorrect').disabled = false;
     }
   }
 
@@ -1211,22 +885,19 @@
     const prevVal = sel.value;
     sel.innerHTML = '<option value="">— Select a trade —</option>';
     entries.forEach(e => {
-      const oc   = e.outcome === 'correct' ? '✓' : e.outcome === 'incorrect' ? '✗' : '·';
-      const dir  = e.direction !== 'N/A' ? ` ${e.direction}` : '';
-      const label = `${oc}  ${e.timestamp || ''}  |  ${e.symbol}  |  ${e.model}${dir}  —  ${e.confidence}`;
-      const opt  = document.createElement('option');
-      opt.value  = e.id;
-      opt.textContent = label;
+      const oc  = e.outcome === 'correct' ? '✓' : e.outcome === 'incorrect' ? '✗' : '·';
+      const dir = e.direction !== 'N/A' ? ` ${e.direction}` : '';
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = `${oc}  ${e.timestamp || ''}  |  ${e.symbol}  |  ${e.model}${dir}  —  ${e.confidence}`;
       sel.appendChild(opt);
     });
     if (prevVal) sel.value = prevVal;
-    document.getElementById('trade-selector-card').style.display =
-      entries.length ? 'block' : 'none';
+    document.getElementById('trade-selector-card').style.display = entries.length ? 'block' : 'none';
   }
 
   function loadSelectedTrade() {
-    const sel = document.getElementById('trade-selector');
-    const id  = sel.value;
+    const id = document.getElementById('trade-selector').value;
     if (!id) return;
     loadTradeById(id);
   }
@@ -1293,9 +964,9 @@
               <span style="color:var(--muted)">${total} resolved</span>
             </div>
           </div>
-          <div class="win-rate-meta">
+          <div>
             <div class="win-rate-label">Scope</div>
-            <div class="win-rate-detail">Long &amp; Short only</div>
+            <div style="font-size:12px;color:var(--muted);font-family:var(--mono);">Long &amp; Short only</div>
           </div>
         </div>`;
 
@@ -1315,13 +986,11 @@
       container.innerHTML = winRateHTML + `
         <table class="history-table">
           <thead>
-            <tr>
-              <th>Time</th><th>Symbol</th><th>Model</th>
-              <th>Dir</th><th>Conf</th><th>Outcome</th>
-            </tr>
+            <tr><th>Time</th><th>Symbol</th><th>Model</th><th>Dir</th><th>Conf</th><th>Outcome</th></tr>
           </thead>
           <tbody>${rows}</tbody>
         </table>`;
+
     } catch (err) {
       // silently fail on history load
     }
@@ -1338,13 +1007,18 @@
     return map[conf] || 'grade-nt';
   }
 
+  function updateRiskDisplay() {
+    const c   = parseInt(document.getElementById('contracts-input').value) || 1;
+    const nqP = (500 / (c * 20)).toFixed(1);
+    const esP = (500 / (c * 50)).toFixed(1);
+    document.getElementById('risk-detail').textContent =
+      `· ${c} contract${c > 1 ? 's' : ''} · max ${nqP} pts (NQ) / ${esP} pts (ES)`;
+  }
+
   function escHtml(str) {
     if (!str) return '—';
     return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 </script>
 </body>

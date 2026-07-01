@@ -25,14 +25,13 @@ import db
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPT_DIR   = Path(__file__).parent
-PLAYBOOK_DIR = SCRIPT_DIR.parent                       # TD Trades root
+PLAYBOOK_DIR = SCRIPT_DIR.parent
 FEEDBACK_LOG = SCRIPT_DIR / "feedback.jsonl"
 TV_CLI       = Path.home() / ".npm-global" / "bin" / "tv"
 
 # ── Load env ──────────────────────────────────────────────────────────────────
 load_dotenv(SCRIPT_DIR / ".env")
 API_KEY = os.environ.get("ANTHROPIC_API_KEY")
-
 
 
 # ── Session context ───────────────────────────────────────────────────────────
@@ -78,7 +77,6 @@ def get_session_context():
         None,
     )
 
-    # Next upcoming macro window
     next_macro = next(
         (label for start, end, label in MACRO_WINDOWS if start > mins),
         None,
@@ -95,7 +93,6 @@ def get_session_context():
 
 # ── TradingView helpers ───────────────────────────────────────────────────────
 
-# Timeframes read on every analysis, in order. Format: (label, tv_code, bar_count, purpose)
 ANALYSIS_TIMEFRAMES = [
     ("1D",  "1D", 50,  "Daily — HTF bias, DOL, ERL (Asia/London highs/lows)"),
     ("1H",  "60", 80,  "1H — intermediate structure, order flow phase"),
@@ -134,13 +131,12 @@ def get_market_data(status_callback=None):
             status_callback(f"Reading {label}…")
         try:
             tv("timeframe", tf_code)
-            time.sleep(0.8)                              # wait for chart to load
+            time.sleep(0.8)
             bars = tv("ohlcv", "-n", str(bar_count))
             ohlcv[label] = {"purpose": purpose, "bars": bars}
         except Exception as e:
             ohlcv[label] = {"purpose": purpose, "error": str(e)}
 
-    # Restore the user's original timeframe
     try:
         tv("timeframe", original_tf)
     except Exception:
@@ -157,7 +153,15 @@ def load_playbook():
         "knowledge_graph":  PLAYBOOK_DIR / "01 Refinement" / "(C) Knowledge_Graph_Master.md",
         "decision_tree":    PLAYBOOK_DIR / "07 Outputs"    / "(C) Model_Selection_Decision_Tree.md",
     }
-    return {k: p.read_text() for k, p in files.items() if p.exists()}
+    result = {}
+    for k, p in files.items():
+        if not p.exists():
+            continue
+        try:
+            result[k] = p.read_text()
+        except Exception as e:
+            print(f"  [Playbook] skipping {p.name}: {e}", flush=True)
+    return result
 
 
 # ── Feedback helpers ──────────────────────────────────────────────────────────
@@ -200,9 +204,6 @@ def mark_feedback(call_id, outcome, notes=""):
         print(f"  [DB] update failed: {e}")
 
 
-# ── Feedback context builder ───────────────────────────────────────────────────
-
-
 # ── Claude API ────────────────────────────────────────────────────────────────
 
 SYSTEM_STATIC = """\
@@ -210,11 +211,19 @@ You are an ICT (Inner Circle Trader) co-pilot for NQ/ES futures scalping.
 You apply Zion's specific trading strategy to live TradingView chart data and
 produce a structured trade call.
 
-## WHEN TO SAY NO TRADE (strict — only these 3 cases)
+## HTF DIRECTION FILTER (hard rule — no exceptions)
+You must determine the larger timeframe (Daily / 1H) order flow bias FIRST before calling any trade.
+  · Bullish HTF order flow  → ONLY Long trades are valid. A Short setup = NO TRADE.
+  · Bearish HTF order flow  → ONLY Short trades are valid. A Long setup = NO TRADE.
+This filter overrides everything. Even an A+ Short setup in bullish HTF flow is NO TRADE.
+State the HTF bias clearly in reasoning.htf_bias and enforce the filter before evaluating any model.
+
+## WHEN TO SAY NO TRADE (strict — only these 4 cases)
 NO TRADE is reserved for hard rule violations only. Do NOT use it for uncertainty or weak setups.
   1. DOL was taken BEFORE any model formed — the daily objective is gone
   2. Current time is outside NY session hours (before 09:30 ET or after 16:00 ET)
   3. There is literally zero discernible structure — no swing points, no ERL, no IRL at all
+  4. Proposed trade direction conflicts with HTF order flow bias (see HTF DIRECTION FILTER above)
 
 Everything else gets a letter grade. A weak, messy, or low-conviction setup is C or C- — NOT NO TRADE.
 Lunch hours (12:00–13:30) are low-quality but NOT a hard NO TRADE rule — grade them C or C-.
@@ -234,20 +243,39 @@ Layer A — ICT order flow (actual model selection)
   · Structure unclear or confluences weak → assign a low letter grade (C+/C/C-), NOT NO TRADE
   · Only if all 3 hard NO TRADE conditions above are met → NO TRADE
 
+## CORE STRATEGY — FVG RETRACEMENT
+The primary entry model is a retracement into an unmitigated Fair Value Gap (FVG), trading in the
+OPPOSITE direction of the retracement (i.e., with the original impulsive move that created the FVG).
+
+A Fair Value Gap forms in a 3-candle sequence:
+  · Candle 1: the candle immediately before the impulse
+  · Candle 2: the strong impulse candle (creates the gap)
+  · Candle 3: the candle immediately after the impulse
+  · Bullish FVG: gap between high of candle 1 and low of candle 3 (price gapped up)
+  · Bearish FVG: gap between low of candle 1 and high of candle 3 (price gapped down)
+
+Entry: price retraces back into the FVG → enter in the direction of the original impulse.
+
+## STOP LOSS PLACEMENT (hard rule)
+The stop loss is the extreme of the 3-candle sequence that created the FVG being traded:
+  · Long  (bullish FVG): stop = the LOW of candle 1 in the sequence (the low that preceded the up-impulse)
+  · Short (bearish FVG): stop = the HIGH of candle 1 in the sequence (the high that preceded the down-impulse)
+This is NOT a generic swing low/high — it is specifically the extreme of the sequence that formed the FVG.
+Reference the 1m or 5m chart for this level. State the exact price in the "stop" field.
+
 ## EXECUTION TIMEFRAMES
 - Entry is executed on the 1m or 5m chart
 - Use 5m for model and neckline confirmation
 - Use 1m for the flip candle / MSS confirmation and precise entry timing
-- Entry zone and stop should reference 1m or 5m structure, not HTF bars
 
 ## EXIT RULES
-- PT1: Scale 50% at IRL (nearest unmitigated FVG). Move SL to BE.
+- PT1: Scale 50% at the next IRL (nearest unmitigated FVG in the direction of trade). Move SL to BE.
 - PT2: Run remaining position to ERL (previous Asia/London session high/low)
 
 ## RISK/REWARD RULE (hard gate — no exceptions)
-- Calculate R:R as: (PT2 price − entry price) ÷ (entry price − stop price) for longs, reversed for shorts
-- If R:R < 2.5 → output NO TRADE with no_trade_reason "R:R below minimum (2.5 required)"
-- Always include the calculated R:R in the output field "rr_ratio" (numeric, e.g. 3.2)
+- Calculate PT1 R:R as: (PT1 price − entry price) ÷ (entry price − stop price) for longs, reversed for shorts
+- If PT1 R:R < 0.85 → output NO TRADE with no_trade_reason "R:R below minimum (0.85 required at PT1)"
+- Always include the calculated PT1 R:R in the output field "rr_ratio" (numeric, e.g. 1.2)
 - If levels are not precise enough to calculate R:R, assume worst case and apply the rule conservatively
 
 ## CONFIDENCE GRADING SCALE
@@ -268,12 +296,18 @@ Grade on how many ICT conditions are confirmed and how cleanly. Be honest but no
   "model":          "Rev | Continuation | IFVG | MFD | NO TRADE",
   "direction":      "Long | Short | N/A",
   "entry_zone":     "price or level description",
-  "stop":           "structural level + regime scaling note",
+  "stop":           "price of candle 1 low (long) or candle 1 high (short) of the FVG sequence",
   "pt1":            "IRL target (FVG level)",
   "pt2":            "ERL target (session high/low)",
   "confidence":     "A+ | A | A- | B+ | B | B- | C+ | C | C- | NO TRADE",
   "confidence_reason": "one sentence explaining exactly why this grade was given",
   "rr_ratio":       2.5,
+  "risk": {
+    "stop_pts":    18.5,
+    "dollar_risk": 370,
+    "fits_budget": true,
+    "note":        "18.5 pts stop → $370 risk at 1 contract (budget: $500)"
+  },
   "no_trade_reason": "only if NO TRADE",
   "reasoning": {
     "layer_c_gamma":   "regime read",
@@ -290,7 +324,6 @@ Grade on how many ICT conditions are confirmed and how cleanly. Be honest but no
 
 
 def build_playbook_block(playbook):
-    """Return playbook docs formatted for the system prompt."""
     parts = ["## YOUR PLAYBOOK\n"]
     if "knowledge_graph" in playbook:
         parts.append("### Knowledge Graph (Master Framework)\n" + playbook["knowledge_graph"])
@@ -300,7 +333,6 @@ def build_playbook_block(playbook):
 
 
 def build_feedback_block(feedback):
-    """Return recent feedback formatted as learning context."""
     if not feedback:
         return ""
     lines = ["\n## RECENT FEEDBACK — learn from these patterns\n"]
@@ -327,7 +359,23 @@ def build_feedback_block(feedback):
     return "\n".join(lines)
 
 
-def analyze(market_data, playbook, news_context, feedback, uw_summary="", gamma_override=""):
+_POINT_VALUES = {
+    "NQ": 20, "MNQ": 2,
+    "ES": 50, "MES": 5,
+    "YM": 5,  "MYM": 0.5,
+    "RTY": 50, "M2K": 5,
+}
+
+def _point_value(symbol: str) -> tuple[float, str]:
+    """Return ($/point, instrument_name) for the chart symbol."""
+    s = symbol.upper()
+    for ticker, pv in _POINT_VALUES.items():
+        if ticker in s:
+            return pv, ticker
+    return 20.0, "NQ"  # default to NQ
+
+
+def analyze(market_data, playbook, news_context, feedback, uw_summary="", gamma_override="", contracts=1):
     """Call Claude API and return the trade call dict."""
     if not API_KEY:
         raise RuntimeError(
@@ -341,9 +389,12 @@ def analyze(market_data, playbook, news_context, feedback, uw_summary="", gamma_
     playbook_block  = build_playbook_block(playbook)
     feedback_block  = build_feedback_block(feedback)
 
+    symbol   = market_data["status"].get("chart_symbol", "NQ1!")
+    pv, instr = _point_value(symbol)
+    max_pts  = 500 / (contracts * pv)
+
     session = get_session_context()
 
-    # Build multi-timeframe OHLCV section
     tf_sections = []
     for label, data in market_data["ohlcv"].items():
         if "error" in data:
@@ -380,6 +431,18 @@ Trades are executed on the 1m or 5m timeframe.
 
 {tf_block}
 
+## POSITION SIZING & RISK CONSTRAINT
+Contracts:         {contracts}
+Max loss:          $500 per trade
+Point value:       ${pv}/point ({instr})
+Max stop distance: {max_pts:.1f} points from entry
+
+You MUST always calculate the structural stop distance in points and include the "risk" block in your output.
+If the structural stop distance exceeds {max_pts:.1f} points:
+  - Lower the confidence grade by one full letter (A+ → A, A → A-, A- → B+, B+ → B, B → B-, etc.)
+  - Set risk.fits_budget = false
+  - Do NOT call NO TRADE for this reason alone — still call the trade
+
 ## USER CONTEXT
 News / events next 2 hours: {news_context}
 Gamma override (manual):    {gamma_override if gamma_override else "none — use UW data above"}
@@ -415,13 +478,11 @@ Apply the C→B→A hierarchy across all timeframes and return your trade call a
 
     import re
 
-    # Strategy 1: try raw directly
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
         pass
 
-    # Strategy 2: extract from ```json ... ``` fences
     match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", raw, re.DOTALL)
     if match:
         try:
@@ -429,7 +490,6 @@ Apply the C→B→A hierarchy across all timeframes and return your trade call a
         except json.JSONDecodeError:
             pass
 
-    # Strategy 3: find outermost { ... } block
     match = re.search(r"\{.*\}", raw, re.DOTALL)
     if match:
         try:
@@ -437,15 +497,11 @@ Apply the C→B→A hierarchy across all timeframes and return your trade call a
         except json.JSONDecodeError:
             pass
 
-    # Strategy 4: truncated JSON recovery — close any open braces/brackets
-    # Handles max_tokens cutoff mid-response
     if stop_reason == "max_tokens" or raw.startswith("{"):
         candidate = raw
-        # Strip trailing incomplete key-value (e.g. `"key":` or `"key": "partial`)
         candidate = re.sub(r',?\s*"[^"]*"\s*:\s*"[^"]*$', '', candidate)
         candidate = re.sub(r',?\s*"[^"]*"\s*:\s*$',        '', candidate)
         candidate = re.sub(r',\s*$',                        '', candidate)
-        # Close open arrays and objects
         opens = candidate.count("{") - candidate.count("}")
         candidate += "]" * (candidate.count("[") - candidate.count("]"))
         candidate += "}" * max(opens, 0)
@@ -505,7 +561,6 @@ def display(call):
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    # ── feedback subcommand ──
     if len(sys.argv) >= 4 and sys.argv[1] == "feedback":
         notes = " ".join(sys.argv[4:]) if len(sys.argv) > 4 else ""
         mark_feedback(sys.argv[2], sys.argv[3], notes)
@@ -513,7 +568,6 @@ def main():
 
     print("ICT Co-pilot — fetching live market data...")
 
-    # Market data (with progress output)
     def progress(msg):
         print(f"  {msg}", flush=True)
 
@@ -527,19 +581,16 @@ def main():
     resolution = market_data["status"].get("chart_resolution", "?")
     print(f"Connected: {symbol} @ {resolution}")
 
-    # Manual inputs
     print("\n[Context — press Enter to skip]")
     news_context    = input("News in next 2 hours (e.g. 'CPI 8:30am' or 'none'): ").strip() or "none"
     gamma_override  = input("Gamma override (leave blank to use UW live data): ").strip()
 
-    # Load playbook + feedback
     playbook = load_playbook()
     feedback = load_recent_feedback()
     if feedback:
         resolved = [e for e in feedback if e.get("outcome") != "pending"]
         print(f"Loaded {len(resolved)} resolved feedback entries.")
 
-    # Fetch live UW data
     uw_summary = ""
     if uw_data.UW_KEY and uw_data.UW_KEY != "your-uw-key-here":
         print("Fetching Unusual Whales data...")
@@ -552,7 +603,6 @@ def main():
     else:
         print("UW key not set — skipping options flow.")
 
-    # Analyze
     print("\nAnalyzing with Claude...")
     try:
         call = analyze(market_data, playbook, news_context, feedback, uw_summary, gamma_override)
@@ -560,7 +610,6 @@ def main():
         print(f"\n✗ {e}")
         return
 
-    # Display + log
     display(call)
     call_id = log_call(call, market_data)
 
