@@ -2,7 +2,7 @@
 """
 ICT Co-pilot Web Server
 Run: python3 app.py
-Open: http://localhost:5000
+Open: http://localhost:8080
 """
 
 from flask import Flask, jsonify, request, send_from_directory
@@ -36,8 +36,8 @@ def api_analyze():
         data           = request.json or {}
         news_context   = data.get("news_context", "none")
         gamma_override = data.get("gamma_override", "")
+        contracts      = int(data.get("contracts", 1))
 
-        # Fetch live UW data
         uw_summary  = ""
         uw_parsed   = {}
         if uw_data.UW_KEY and uw_data.UW_KEY != "your-uw-key-here":
@@ -51,7 +51,7 @@ def api_analyze():
         market_data = get_market_data(status_callback=lambda msg: print(f"  [TV] {msg}", flush=True))
         playbook    = load_playbook()
         feedback    = load_recent_feedback(50)
-        call        = analyze(market_data, playbook, news_context, feedback, uw_summary, gamma_override)
+        call        = analyze(market_data, playbook, news_context, feedback, uw_summary, gamma_override, contracts)
         call_id     = log_call(call, market_data)
 
         return jsonify({
