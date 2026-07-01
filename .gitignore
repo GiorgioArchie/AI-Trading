@@ -24,3 +24,7 @@ node_modules/
 *.wav
 *.mp3
 *.pages
+
+# secrets — never commit
+.env
+*.env

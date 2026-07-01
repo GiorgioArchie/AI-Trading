@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICT Co-pilot</title>
+  <style>
+    /* ── Reset & base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #0d1117;
+      --bg-card:      #161b22;
+      --bg-input:     #21262d;
+      --border:       #30363d;
+      --border-hover: #484f58;
+      --text:         #e6edf3;
+      --muted:        #8b949e;
+      --green:        #3fb950;
+      --green-dim:    #1a4a20;
+      --red:          #f85149;
+      --red-dim:      #4a1a1a;
+      --yellow:       #d29922;
+      --yellow-dim:   #4a3800;
+      --blue:         #58a6ff;
+      --purple:       #bc8cff;
+      --radius:       8px;
+      --mono:         'Courier New', monospace;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    .layout {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 16px 64px;
+    }
+
+    /* ── Header ───────────────────────────────────────────────── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .logo {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      color: var(--text);
+    }
+    .logo span { color: var(--blue); }
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-family: var(--mono);
+      color: var(--muted);
+      background: var(--bg-card);
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: background 0.3s;
+    }
+    .status-dot.connected { background: var(--green); box-shadow: 0 0 6px var(--green); }
+
+    /* ── Card ─────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Controls ─────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+    }
+    select, input[type="text"] {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    select:focus, input[type="text"]:focus { border-color: var(--blue); }
+    select { cursor: pointer; min-width: 160px; }
+    input[type="text"] { min-width: 200px; }
+    input::placeholder { color: var(--muted); }
+
+    .btn-analyze {
+      padding: 9px 24px;
+      background: var(--blue);
+      color: #0d1117;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: opacity 0.2s, transform 0.1s;
+      white-space: nowrap;
+      align-self: flex-end;
+    }
+    .btn-analyze:hover { opacity: 0.88; }
+    .btn-analyze:active { transform: scale(0.97); }
+    .btn-analyze:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Trade Call Card ──────────────────────────────────────── */
+    #result-card {
+      display: none;
+      border-left-width: 4px;
+    }
+    #result-card.take-trade { border-left-color: var(--green); }
+    #result-card.no-trade   { border-left-color: var(--red); }
+    #result-card.loading    { border-left-color: var(--yellow); }
+
+    .call-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .call-verdict {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .verdict-take { color: var(--green); }
+    .verdict-none { color: var(--red); }
+    .verdict-loading { color: var(--yellow); }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge-model    { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
+    .badge-long     { background: rgba(63,185,80,0.15);  color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+    .badge-short    { background: rgba(248,81,73,0.15);  color: var(--red);   border: 1px solid rgba(248,81,73,0.3); }
+
+    /* ── Grade badge (large, in result card header) ───────────── */
+    .grade-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .grade-circle {
+      width: 68px;
+      height: 68px;
+      border-radius: 12px;
+      border: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      transition: all 0.2s;
+    }
+    .grade-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+    }
+    .grade-reason {
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: var(--bg-input);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      line-height: 1.5;
+    }
+
+    /* Grade colour families */
+    .grade-a-plus  { color: #3fb950; border-color: #3fb950; background: rgba(63,185,80,0.12); }
+    .grade-a       { color: #56d364; border-color: #56d364; background: rgba(86,211,100,0.10); }
+    .grade-a-minus { color: #7ee787; border-color: #7ee787; background: rgba(126,231,135,0.08); }
+    .grade-b-plus  { color: #d29922; border-color: #d29922; background: rgba(210,153,34,0.12); }
+    .grade-b       { color: #e3b341; border-color: #e3b341; background: rgba(227,179,65,0.10); }
+    .grade-b-minus { color: #f0c040; border-color: #f0c040; background: rgba(240,192,64,0.08); }
+    .grade-c-plus  { color: #f0883e; border-color: #f0883e; background: rgba(240,136,62,0.10); }
+    .grade-c       { color: #f85149; border-color: #f85149; background: rgba(248,81,73,0.10); }
+    .grade-c-minus { color: #ff7b72; border-color: #ff7b72; background: rgba(255,123,114,0.08); }
+    .grade-nt      { color: var(--muted); border-color: var(--border); background: var(--bg-input); }
+
+    /* Small grade badge for history table */
+    .grade-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      font-family: var(--mono);
+      border: 1px solid;
+    }
+
+    /* ── Action stack ─────────────────────────────────────────── */
+    .action-stack {
+      margin: 20px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .action-row {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .action-row:last-child { border-bottom: none; }
+
+    .action-icon-col {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      padding: 16px 0;
+      border-right: 1px solid var(--border);
+    }
+    .action-body {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .action-text { flex: 1; min-width: 0; }
+    .action-tag {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      margin-bottom: 3px;
+    }
+    .action-instruction {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .action-value {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 700;
+      text-align: right;
+      max-width: 260px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    /* Entry — blue */
+    .action-row.ar-entry                  { background: rgba(88,166,255,0.04); }
+    .action-row.ar-entry .action-icon-col { color: var(--blue); background: rgba(88,166,255,0.08); }
+    .action-row.ar-entry .action-tag      { color: var(--blue); }
+    .action-row.ar-entry .action-value    { color: var(--blue); }
+
+    /* Stop — red */
+    .action-row.ar-stop                   { background: rgba(248,81,73,0.04); }
+    .action-row.ar-stop .action-icon-col  { color: var(--red); background: rgba(248,81,73,0.08); }
+    .action-row.ar-stop .action-tag       { color: var(--red); }
+    .action-row.ar-stop .action-value     { color: var(--red); }
+
+    /* PT1 — medium green */
+    .action-row.ar-pt1                    { background: rgba(63,185,80,0.04); }
+    .action-row.ar-pt1 .action-icon-col   { color: var(--green); background: rgba(63,185,80,0.08); }
+    .action-row.ar-pt1 .action-tag        { color: var(--green); }
+    .action-row.ar-pt1 .action-value      { color: var(--green); }
+
+    /* PT2 — bright green */
+    .action-row.ar-pt2                    { background: rgba(63,185,80,0.08); }
+    .action-row.ar-pt2 .action-icon-col   { color: var(--green); background: rgba(63,185,80,0.14); }
+    .action-row.ar-pt2 .action-tag        { color: var(--green); }
+    .action-row.ar-pt2 .action-value      { color: var(--green); font-size: 15px; }
+
+    .no-trade-reason {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      padding: 14px;
+      background: var(--bg-input);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
+    /* ── Reasoning accordion ──────────────────────────────────── */
+    .reasoning-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color 0.2s, color 0.2s;
+      margin-top: 4px;
+    }
+    .reasoning-toggle:hover { border-color: var(--border-hover); color: var(--text); }
+    .chevron { transition: transform 0.2s; display: inline-block; }
+    .chevron.open { transform: rotate(90deg); }
+
+    .reasoning-body {
+      display: none;
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .reasoning-body.open { display: block; }
+
+    .reasoning-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      border-bottom: 1px solid var(--border);
+    }
+    .reasoning-row:last-child { border-bottom: none; }
+    .reasoning-key {
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      background: var(--bg-input);
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+    }
+    .reasoning-val {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .confluence-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .confluence-list li::before { content: '• '; color: var(--green); }
+
+    /* ── Feedback section ─────────────────────────────────────── */
+    #feedback-section {
+      display: none;
+      margin-top: 16px;
+    }
+    .feedback-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .feedback-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-correct, .btn-incorrect {
+      padding: 10px 28px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-correct:active, .btn-incorrect:active { transform: scale(0.97); }
+    .btn-correct:disabled, .btn-incorrect:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-correct   { background: var(--green-dim); color: var(--green); border: 1px solid rgba(63,185,80,0.4); }
+    .btn-incorrect { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(248,81,73,0.4); }
+    .btn-correct:hover:not(:disabled)   { background: rgba(63,185,80,0.2); }
+    .btn-incorrect:hover:not(:disabled) { background: rgba(248,81,73,0.2); }
+
+    .notes-row {
+      display: none;
+      margin-top: 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .notes-row.visible { display: flex; }
+    .notes-row input {
+      flex: 1;
+      min-width: 200px;
+    }
+    .btn-submit-notes {
+      padding: 8px 18px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    .btn-submit-notes:hover { border-color: var(--border-hover); }
+
+    .feedback-confirm {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      padding: 10px 14px;
+      border-radius: 6px;
+    }
+    .feedback-confirm.correct   { background: var(--green-dim); color: var(--green); }
+    .feedback-confirm.incorrect { background: var(--red-dim);   color: var(--red); }
+
+    /* ── Loading spinner ──────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(210,153,34,0.3);
+      border-top-color: var(--yellow);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── History ──────────────────────────────────────────────── */
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .history-table th {
+      text-align: left;
+      padding: 6px 10px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .history-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(48,54,61,0.5);
+      font-family: var(--mono);
+      vertical-align: middle;
+    }
+    .history-table tr:last-child td { border-bottom: none; }
+    .history-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .outcome-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .outcome-correct   { background: var(--green-dim); color: var(--green); }
+    .outcome-incorrect { background: var(--red-dim);   color: var(--red); }
+    .outcome-pending   { background: var(--yellow-dim); color: var(--yellow); }
+
+    .empty-history {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 12px 0;
+      text-align: center;
+    }
+
+    /* ── Win Rate bar ─────────────────────────────────────────── */
+    .win-rate-block {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 14px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .win-rate-pct {
+      font-family: var(--mono);
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .win-rate-pct.positive { color: var(--green); }
+    .win-rate-pct.negative { color: var(--red); }
+    .win-rate-pct.neutral  { color: var(--muted); }
+    .win-rate-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .win-rate-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+    }
+    .win-rate-detail {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .win-rate-bar-wrap {
+      flex: 1;
+      min-width: 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .win-rate-bar-track {
+      height: 6px;
+      background: var(--bg-card);
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .win-rate-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--green);
+      transition: width 0.4s ease;
+    }
+    .win-rate-counts {
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      font-family: var(--mono);
+    }
+    .win-rate-counts .w { color: var(--green); font-weight: 700; }
+    .win-rate-counts .l { color: var(--red);   font-weight: 700; }
+    .win-rate-counts .p { color: var(--yellow); }
+
+    /* ── Error banner ─────────────────────────────────────────── */
+    #error-banner {
+      display: none;
+      background: var(--red-dim);
+      border: 1px solid rgba(248,81,73,0.4);
+      border-radius: 6px;
+      color: var(--red);
+      padding: 12px 16px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    /* ── R:R badge ───────────────────────────────────────────── */
+    .rr-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-input);
+      margin: 16px 0 4px;
+      font-family: var(--mono);
+    }
+    .rr-badge .rr-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: var(--muted);
+    }
+    .rr-badge .rr-value {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .rr-badge .rr-min {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .rr-badge.pass { border-color: rgba(63,185,80,0.4);  background: var(--green-dim); }
+    .rr-badge.pass .rr-value { color: var(--green); }
+    .rr-badge.fail { border-color: rgba(248,81,73,0.4);  background: var(--red-dim); }
+    .rr-badge.fail .rr-value { color: var(--red); }
+
+    /* ── UW strip pills ──────────────────────────────────────── */
+    .uw-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .uw-pill.bullish { border-color: rgba(63,185,80,0.4);  color: var(--green); background: var(--green-dim); }
+    .uw-pill.bearish { border-color: rgba(248,81,73,0.4);  color: var(--red);   background: var(--red-dim); }
+    .uw-pill.neutral { border-color: rgba(210,153,34,0.4); color: var(--yellow); background: var(--yellow-dim); }
+
+    /* ── Trade selector ──────────────────────────────────────── */
+    .selector-row { display: flex; gap: 10px; align-items: flex-end; }
+    #trade-selector { flex: 1; font-family: var(--mono); font-size: 12px; }
+    .btn-load-trade {
+      padding: 9px 18px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.2s;
+    }
+    .btn-load-trade:hover { border-color: var(--border-hover); }
+
+    /* ── Current outcome row ──────────────────────────────────── */
+    .current-outcome-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    .current-outcome-row.correct   { border-color: rgba(63,185,80,0.4);  background: var(--green-dim); color: var(--green); }
+    .current-outcome-row.incorrect { border-color: rgba(248,81,73,0.4);  background: var(--red-dim);   color: var(--red); }
+    .current-outcome-row.pending   { border-color: rgba(210,153,34,0.4); background: var(--yellow-dim); color: var(--yellow); }
+
+    /* ── Divider ──────────────────────────────────────────────── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    /* ── Overlay chips (IFVG / MFD) ───────────────────────────── */
+    .badge-overlay {
+      background: rgba(188,140,255,0.15);
+      color: var(--purple);
+      border: 1px solid rgba(188,140,255,0.35);
+    }
+    .badge-cont { background: rgba(88,166,255,0.15); color: var(--blue);  border: 1px solid rgba(88,166,255,0.3); }
+    .badge-rev  { background: rgba(210,153,34,0.15); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+
+    /* ── Conviction pill ──────────────────────────────────────── */
+    .conv-pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border: 1px solid;
+    }
+    .conv-take { background: var(--green-dim); color: var(--green); border-color: rgba(63,185,80,0.4); }
+    .conv-half { background: var(--yellow-dim); color: var(--yellow); border-color: rgba(210,153,34,0.4); }
+    .conv-skip { background: var(--red-dim); color: var(--red); border-color: rgba(248,81,73,0.4); }
+    .conv-structure { background: var(--bg-input); color: var(--muted); border-color: var(--border); }
+
+    /* ── Checklist ────────────────────────────────────────────── */
+    .checklist {
+      margin: 16px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .checklist-row {
+      display: grid;
+      grid-template-columns: 32px 110px 1fr;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .checklist-row:last-child { border-bottom: none; }
+    .checklist-icon { text-align: center; font-size: 13px; padding: 9px 0; }
+    .checklist-icon.pass { color: var(--green); }
+    .checklist-icon.fail { color: var(--red); }
+    .checklist-step {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 10px;
+      color: var(--muted);
+      padding: 9px 10px;
+    }
+    .checklist-note { color: var(--text); padding: 9px 12px 9px 0; line-height: 1.4; }
+
+    /* ── Risk Gate panel ──────────────────────────────────────── */
+    .risk-panel {
+      margin: 16px 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: var(--bg-input);
+    }
+    .risk-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.7px; color: var(--muted); margin-bottom: 10px;
+    }
+    .risk-flags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .veto-badge {
+      display: inline-block; padding: 3px 11px; border-radius: 6px;
+      font-size: 11px; font-weight: 800; font-family: var(--mono);
+      background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,81,73,0.4);
+    }
+    .risk-sizing {
+      font-family: var(--mono); font-size: 15px; font-weight: 700;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .risk-sizing .muted { color: var(--muted); font-weight: 400; font-size: 12px; }
+    .risk-advisory { font-size: 11px; color: var(--muted); line-height: 1.5; }
+    .risk-advisory ul { list-style: none; margin-top: 4px; }
+    .risk-advisory li::before { content: '· '; color: var(--muted); }
+
+    /* ── Vault Live Engine card ───────────────────────────────── */
+    .vault-card { display: none; }
+    .vault-grid { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .bias-pill {
+      display: inline-flex; flex-direction: column; gap: 1px;
+      padding: 6px 12px; border-radius: 8px; border: 1px solid;
+      font-family: var(--mono); min-width: 92px;
+    }
+    .bias-pill .bp-sym { font-size: 11px; font-weight: 800; letter-spacing: 0.3px; }
+    .bias-pill .bp-meta { font-size: 10px; opacity: 0.85; }
+    .bias-high { border-color: rgba(63,185,80,0.5);  background: var(--green-dim);  color: var(--green); }
+    .bias-med  { border-color: rgba(210,153,34,0.5); background: var(--yellow-dim); color: var(--yellow); }
+    .bias-low  { border-color: var(--border);        background: var(--bg-input);  color: var(--muted); }
+    .vault-sub {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.6px; color: var(--muted); margin: 12px 0 6px;
+    }
+    .vault-mini-table { width: 100%; border-collapse: collapse; font-size: 11px; font-family: var(--mono); }
+    .vault-mini-table td, .vault-mini-table th {
+      padding: 5px 8px; border-bottom: 1px solid rgba(48,54,61,0.5); text-align: left;
+    }
+    .vault-mini-table th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 10px; }
+    .vault-lessons { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .vault-lessons li { font-size: 11px; color: var(--muted); line-height: 1.4; }
+    .vault-lessons .win  { color: var(--green); font-weight: 700; }
+    .vault-lessons .loss { color: var(--red);   font-weight: 700; }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">ICT <span>Co-pilot</span></div>
+    <div class="status-pill">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">—</span>
+    </div>
+  </header>
+
+  <!-- Error banner -->
+  <div id="error-banner"></div>
+
+  <!-- Vault — Live Engine -->
+  <div class="card vault-card" id="vault-card">
+    <div class="section-title">Vault — Live Engine <span id="vault-ts" style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;"></span></div>
+    <div class="vault-sub">Gate 0 — HTF Bias</div>
+    <div class="vault-grid" id="vault-bias"></div>
+    <div id="vault-open-wrap" style="display:none;">
+      <div class="vault-sub">Open Setups</div>
+      <table class="vault-mini-table">
+        <thead><tr><th>Symbol</th><th>Dir</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody id="vault-open"></tbody>
+      </table>
+    </div>
+    <div id="vault-lessons-wrap" style="display:none;">
+      <div class="vault-sub">Last 3 Lessons</div>
+      <ul class="vault-lessons" id="vault-lessons"></ul>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <div class="card">
+    <div class="controls">
+      <div class="field">
+        <label>News next 2h</label>
+        <input type="text" id="news-input" placeholder="e.g. CPI 8:30am, or none" />
+      </div>
+      <div class="field">
+        <label>Gamma override</label>
+        <input type="text" id="gamma-input" placeholder="Auto (from UW)" />
+      </div>
+      <button class="btn-analyze" id="btn-analyze" onclick="analyzeSetup()">
+        Analyze Setup
+      </button>
+    </div>
+
+    <!-- UW live status strip -->
+    <div id="uw-strip" style="display:none; margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:8px;">Live UW Data</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div class="uw-pill" id="uw-tide">—</div>
+        <div class="uw-pill" id="uw-flow">—</div>
+        <div class="uw-pill" id="uw-regime">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trade selector -->
+  <div class="card" id="trade-selector-card" style="display:none;">
+    <div class="selector-row">
+      <div class="field" style="flex:1;">
+        <label>Load Previous Trade</label>
+        <select id="trade-selector">
+          <option value="">— Select a trade —</option>
+        </select>
+      </div>
+      <button class="btn-load-trade" onclick="loadSelectedTrade()">Load</button>
+    </div>
+  </div>
+
+  <!-- Result card -->
+  <div class="card" id="result-card">
+
+    <div class="call-header">
+      <div style="flex:1;">
+        <div class="call-verdict" id="call-verdict">—</div>
+        <div class="meta-row" id="meta-row" style="margin-top:8px;"></div>
+        <div id="conv-breakdown" style="display:none;margin-top:10px;"></div>
+        <div class="grade-reason" id="grade-reason" style="display:none;"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <div id="call-timestamp" style="font-size:11px;color:var(--muted);font-family:var(--mono);"></div>
+        <div class="grade-block">
+          <div class="grade-circle grade-nt" id="grade-circle">—</div>
+          <div class="grade-label">Confidence</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NO TRADE reason -->
+    <div class="no-trade-reason" id="no-trade-reason" style="display:none;"></div>
+
+    <!-- Action stack -->
+    <div class="action-stack" id="action-stack" style="display:none;">
+
+      <div class="action-row ar-entry">
+        <div class="action-icon-col">&#9654;</div>
+        <div class="action-body">
+          <div class="action-text">
+            <div class="action-tag">Entry Zone</div>
+            <div class="action-instruction">Place your order here</div>
+          </div>
+          <div class="action-value" id="lv-entry">—</div>
+        </div>
+      </div>
+
+      <div class="action-row ar-stop">
+        <div class="action-icon-col">&#10005;</div>
+        <div class="action-body">
+          <div class="action-text">
+            <div class="action-tag">Stop Loss</div>
+            <div class="action-instruction">Exit immediately if reached — structural &amp; regime-scaled</div>
+          </div>
+          <div class="action-value" id="lv-stop">—</div>
+        </div>
+      </div>
+
+      <div class="action-row ar-pt1">
+        <div class="action-icon-col">&#10003;</div>
+        <div class="action-body">
+          <div class="action-text">
+            <div class="action-tag">Take Profit 1 — Scale 50%</div>
+            <div class="action-instruction">Close half the position &rarr; move SL to break even</div>
+          </div>
+          <div class="action-value" id="lv-pt1">—</div>
+        </div>
+      </div>
+
+      <div class="action-row ar-pt2">
+        <div class="action-icon-col">&#9679;</div>
+        <div class="action-body">
+          <div class="action-text">
+            <div class="action-tag">Take Profit 2 — Run Remainder</div>
+            <div class="action-instruction">Let remaining 50% ride to ERL — final exit</div>
+          </div>
+          <div class="action-value" id="lv-pt2">—</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- R:R badge -->
+    <div id="rr-badge" class="rr-badge" style="display:none;">
+      <span class="rr-label">R:R</span>
+      <span class="rr-value" id="rr-value">—</span>
+      <span class="rr-min">floor 0.85R (first DOL)</span>
+    </div>
+
+    <!-- 5-step A+ checklist -->
+    <div class="checklist" id="checklist" style="display:none;"></div>
+
+    <!-- Risk Gate panel -->
+    <div class="risk-panel" id="risk-panel" style="display:none;">
+      <div class="risk-title">Risk Gate</div>
+      <div class="risk-flags" id="risk-flags"></div>
+      <div class="risk-sizing" id="risk-sizing">—</div>
+      <div class="risk-advisory" id="risk-advisory"></div>
+    </div>
+
+    <!-- Reasoning accordion -->
+    <div id="reasoning-section" style="display:none;">
+      <button class="reasoning-toggle" onclick="toggleReasoning()">
+        <span class="chevron" id="chevron">▶</span> Show Reasoning
+      </button>
+      <div class="reasoning-body" id="reasoning-body"></div>
+    </div>
+
+    <hr class="divider" id="feedback-divider" style="display:none;" />
+
+    <!-- Feedback -->
+    <div id="feedback-section">
+      <div class="current-outcome-row" id="current-outcome-row" style="display:none;"></div>
+      <div class="feedback-label">Was this call correct?</div>
+      <div class="feedback-buttons">
+        <button class="btn-correct"   id="btn-correct"   onclick="submitFeedback('correct')">✓ Correct</button>
+        <button class="btn-incorrect" id="btn-incorrect" onclick="showNotesInput()">✗ Incorrect</button>
+      </div>
+      <div class="notes-row" id="notes-row">
+        <input type="text" id="notes-input" placeholder="What was wrong? (optional)" />
+        <button class="btn-submit-notes" onclick="submitFeedback('incorrect')">Submit</button>
+      </div>
+      <div class="feedback-confirm" id="feedback-confirm"></div>
+    </div>
+
+  </div>
+
+  <!-- History -->
+  <div class="card">
+    <div class="section-title">Recent Calls</div>
+    <div id="history-container">
+      <div class="empty-history">No calls yet.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentCallId  = null;
+  let reasoningOpen  = false;
+  let historyCache   = [];   // full history with call data
+
+  // ── On load ──────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', () => {
+    loadHistory();
+    loadVaultState();
+    updateStatus(null);
+  });
+
+  // ── UW strip ─────────────────────────────────────────────────
+  function renderUWStrip(uw) {
+    if (!uw || !Object.keys(uw).length) return;
+    document.getElementById('uw-strip').style.display = 'block';
+
+    const tideEl   = document.getElementById('uw-tide');
+    const flowEl   = document.getElementById('uw-flow');
+    const regimeEl = document.getElementById('uw-regime');
+
+    // Tide
+    if (uw.tide) {
+      const bias = uw.tide.bias || '';
+      const cls  = bias.includes('BULLISH') ? 'bullish' : bias.includes('BEARISH') ? 'bearish' : 'neutral';
+      tideEl.textContent = '⟳ Tide: ' + (bias.split('—')[0].trim() || bias);
+      tideEl.className   = 'uw-pill ' + cls;
+    }
+
+    // Flow dominance
+    if (uw.flow) {
+      const dom = uw.flow.dominance || '';
+      const cls = dom.includes('CALL') ? 'bullish' : dom.includes('PUT') ? 'bearish' : 'neutral';
+      flowEl.textContent = '⚡ ' + (dom.split('(')[0].trim() || dom);
+      flowEl.className   = 'uw-pill ' + cls;
+    }
+
+    // Regime
+    if (uw.regime_estimate) {
+      const r   = uw.regime_estimate;
+      const cls = r.includes('BULLISH') ? 'bullish' : r.includes('BEARISH') ? 'bearish' : 'neutral';
+      regimeEl.textContent = '◈ ' + r.split('—')[0].trim();
+      regimeEl.className   = 'uw-pill ' + cls;
+    }
+  }
+
+  // ── Status display ───────────────────────────────────────────
+  function updateStatus(data) {
+    const dot  = document.getElementById('status-dot');
+    const text = document.getElementById('status-text');
+    if (!data) {
+      dot.className  = 'status-dot';
+      text.textContent = 'Not connected';
+      return;
+    }
+    dot.className    = 'status-dot connected';
+    text.textContent = `${data.symbol} @ ${data.timeframe}m`;
+  }
+
+  // ── Error banner ─────────────────────────────────────────────
+  function showError(msg) {
+    const el = document.getElementById('error-banner');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+  }
+  function clearError() {
+    document.getElementById('error-banner').style.display = 'none';
+  }
+
+  // ── Analyze ──────────────────────────────────────────────────
+  async function analyzeSetup() {
+    clearError();
+    const btn           = document.getElementById('btn-analyze');
+    const newsVal       = document.getElementById('news-input').value.trim() || 'none';
+    const gammaVal      = document.getElementById('gamma-input').value.trim();
+
+    btn.disabled     = true;
+    btn.innerHTML    = '<span class="spinner"></span> Analyzing…';
+
+    showLoadingCard();
+
+    try {
+      const res  = await fetch('/api/analyze', {
+        method:  'POST',
+        headers: {'Content-Type': 'application/json'},
+        body:    JSON.stringify({ news_context: newsVal, gamma_override: gammaVal }),
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        showError((data.error || 'Analysis failed.') + (data.traceback ? '\n\n' + data.traceback : ''));
+        hideResultCard();
+        return;
+      }
+
+      updateStatus(data);
+      if (data.uw) renderUWStrip(data.uw);
+      currentCallId = data.call_id;
+      renderCall(data.call, data.call_id, 'pending', '', null, data.risk, data.conviction);
+      loadHistory();
+      loadVaultState();   // refresh the Live Engine read after each analyze
+
+    } catch (err) {
+      showError('Could not reach the server. Is app.py running?');
+      hideResultCard();
+    } finally {
+      btn.disabled  = false;
+      btn.innerHTML = 'Analyze Setup';
+    }
+  }
+
+  // ── Render call ──────────────────────────────────────────────
+  function showLoadingCard() {
+    const card = document.getElementById('result-card');
+    card.style.display = 'block';
+    card.className     = 'card loading';
+    document.getElementById('call-verdict').innerHTML =
+      '<span class="verdict-loading"><span class="spinner"></span> Analyzing…</span>';
+    document.getElementById('meta-row').innerHTML         = '';
+    document.getElementById('no-trade-reason').style.display = 'none';
+    document.getElementById('action-stack').style.display    = 'none';
+    document.getElementById('checklist').style.display        = 'none';
+    document.getElementById('risk-panel').style.display       = 'none';
+    document.getElementById('reasoning-section').style.display = 'none';
+    document.getElementById('feedback-section').style.display  = 'none';
+    document.getElementById('feedback-divider').style.display  = 'none';
+    document.getElementById('feedback-confirm').style.display  = 'none';
+  }
+
+  function hideResultCard() {
+    document.getElementById('result-card').style.display = 'none';
+  }
+
+  function renderCall(call, callId, existingOutcome, existingNotes, overrideTimestamp, risk, conviction) {
+    const card = document.getElementById('result-card');
+
+    // If JSON parsing failed, Claude returned plain text — show it clearly
+    if (call.raw_response !== undefined) {
+      card.className   = 'card loading';
+      card.style.display = 'block';
+      document.getElementById('call-verdict').innerHTML =
+        '<span class="verdict-none">⚠ Parse Error</span>';
+      document.getElementById('meta-row').innerHTML = '';
+      document.getElementById('grade-circle').textContent = '?';
+      document.getElementById('grade-circle').className   = 'grade-circle grade-nt';
+      document.getElementById('grade-reason').style.display = 'none';
+      document.getElementById('no-trade-reason').textContent =
+        'Claude response could not be parsed as JSON. Raw output:\n\n' + call.raw_response;
+      document.getElementById('no-trade-reason').style.display = 'block';
+      document.getElementById('action-stack').style.display    = 'none';
+      document.getElementById('checklist').style.display        = 'none';
+      document.getElementById('risk-panel').style.display       = 'none';
+      document.getElementById('reasoning-section').style.display = 'none';
+      document.getElementById('feedback-divider').style.display  = 'none';
+      document.getElementById('feedback-section').style.display  = 'none';
+      document.getElementById('call-timestamp').textContent = overrideTimestamp || '';
+      return;
+    }
+
+    const isNoTrade = call.model === 'NO TRADE';
+    card.className  = 'card ' + (isNoTrade ? 'no-trade' : 'take-trade');
+    card.style.display = 'block';
+
+    // Verdict
+    const verdictEl = document.getElementById('call-verdict');
+    if (isNoTrade) {
+      verdictEl.innerHTML = '<span class="verdict-none">⊘ NO TRADE</span>';
+    } else {
+      const arrow = call.direction === 'Long' ? '↑' : '↓';
+      const cls   = call.direction === 'Long' ? 'verdict-take' : 'verdict-none';
+      verdictEl.innerHTML = `<span class="${cls}">${arrow} ${call.direction?.toUpperCase()} — ${call.model}</span>`;
+    }
+
+    // Timestamp
+    const ts = overrideTimestamp || (callId
+      ? callId.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3  $4:$5')
+      : '');
+    document.getElementById('call-timestamp').textContent = ts;
+
+    // Meta badges — REV/CONT colored model + overlay chips + conviction pill.
+    // Legacy model strings (Rev/Continuation/IFVG/MFD) still render as-is.
+    const metaRow = document.getElementById('meta-row');
+    const badges  = [];
+    if (!isNoTrade) {
+      const mUp = (call.model || '').toUpperCase();
+      const modelCls = mUp === 'CONT' ? 'badge-cont' : mUp === 'REV' ? 'badge-rev' : 'badge-model';
+      badges.push(`<span class="badge ${modelCls}">${escHtml(call.model)}</span>`);
+      if (call.direction === 'Long')  badges.push('<span class="badge badge-long">Long</span>');
+      if (call.direction === 'Short') badges.push('<span class="badge badge-short">Short</span>');
+      // Overlay chips — only when the booleans are true
+      if (call.ifvg_confirmation === true) badges.push('<span class="badge badge-overlay">IFVG</span>');
+      if (call.mfd_overlay === true)       badges.push('<span class="badge badge-overlay">MFD</span>');
+      // Conviction pill (Gate 1)
+      if (conviction && conviction.verdict) {
+        const v   = conviction.verdict;
+        const cls = v === 'TAKE' ? 'conv-take' : v === 'HALF' ? 'conv-half'
+                  : v === 'SKIP' ? 'conv-skip' : 'conv-structure';
+        const sc  = (conviction.score !== null && conviction.score !== undefined) ? ` ${conviction.score}` : '';
+        badges.push(`<span class="conv-pill ${cls}" title="Gate 1 Selection conviction" onclick="toggleConvBreakdown()" style="cursor:pointer;">${escHtml(v)}${sc}</span>`);
+      }
+    }
+    metaRow.innerHTML = badges.join('');
+
+    // Conviction breakdown (collapsible) lives just under the meta row
+    renderConvictionBreakdown(conviction);
+
+    // Grade circle
+    const conf = call.confidence || 'NO TRADE';
+    const gradeEl = document.getElementById('grade-circle');
+    gradeEl.textContent = conf;
+    gradeEl.className   = 'grade-circle ' + gradeClass(conf);
+
+    // Grade reason
+    const gradeReason = document.getElementById('grade-reason');
+    if (call.confidence_reason) {
+      gradeReason.textContent  = call.confidence_reason;
+      gradeReason.style.display = 'block';
+    } else {
+      gradeReason.style.display = 'none';
+    }
+
+    // NO TRADE reason
+    const ntReason = document.getElementById('no-trade-reason');
+    if (isNoTrade) {
+      ntReason.textContent   = call.no_trade_reason || 'No valid setup.';
+      ntReason.style.display = 'block';
+      document.getElementById('action-stack').style.display = 'none';
+    } else {
+      ntReason.style.display = 'none';
+      renderLevels(call);
+    }
+
+    // 5-step A+ checklist + Risk Gate
+    renderChecklist(call.checklist);
+    renderRiskGate(risk);
+
+    // Reasoning
+    renderReasoning(call.reasoning || {});
+    document.getElementById('reasoning-section').style.display = 'block';
+
+    // Feedback — show existing outcome if present, always allow changing
+    document.getElementById('feedback-divider').style.display = 'block';
+    document.getElementById('feedback-section').style.display = 'block';
+    document.getElementById('btn-correct').disabled   = false;
+    document.getElementById('btn-incorrect').disabled = false;
+    document.getElementById('notes-row').className    = 'notes-row';
+    document.getElementById('notes-input').value      = '';
+    document.getElementById('feedback-confirm').style.display = 'none';
+
+    const ocRow = document.getElementById('current-outcome-row');
+    if (existingOutcome && existingOutcome !== 'pending') {
+      const icon  = existingOutcome === 'correct' ? '✓' : '✗';
+      const label = existingOutcome === 'correct' ? 'Marked correct' : 'Marked incorrect';
+      const note  = existingNotes ? ` — "${existingNotes}"` : '';
+      ocRow.className   = 'current-outcome-row ' + existingOutcome;
+      ocRow.textContent = `${icon} ${label}${note}  ·  Click a button below to change`;
+      ocRow.style.display = 'flex';
+    } else {
+      ocRow.style.display = 'none';
+    }
+
+    // Sync dropdown to loaded trade
+    const sel = document.getElementById('trade-selector');
+    if (callId && sel) sel.value = callId;
+  }
+
+  function renderLevels(call) {
+    document.getElementById('action-stack').style.display = 'block';
+    document.getElementById('lv-entry').textContent = call.entry_zone || '—';
+    document.getElementById('lv-stop').textContent  = call.stop       || '—';
+    document.getElementById('lv-pt1').textContent   = call.pt1        || '—';
+    document.getElementById('lv-pt2').textContent   = call.pt2        || '—';
+  }
+
+  // ── 5-step A+ checklist ──────────────────────────────────────
+  function renderChecklist(checklist) {
+    const el = document.getElementById('checklist');
+    if (!checklist || typeof checklist !== 'object') {
+      el.style.display = 'none';
+      return;
+    }
+    const steps = [
+      ['draw',          'Draw'],
+      ['mtf_alignment', 'MTF Align'],
+      ['poi',           'POI'],
+      ['model',         'Model'],
+      ['rr',            'R:R'],
+    ];
+    const rows = steps.map(([k, label]) => {
+      const item = checklist[k] || {};
+      const pass = item.pass === true;
+      const icon = pass ? '✓' : '✗';
+      const cls  = pass ? 'pass' : 'fail';
+      return `<div class="checklist-row">
+        <div class="checklist-icon ${cls}">${icon}</div>
+        <div class="checklist-step">${label}</div>
+        <div class="checklist-note">${escHtml(item.note || '—')}</div>
+      </div>`;
+    }).join('');
+    el.innerHTML = rows;
+    el.style.display = 'block';
+  }
+
+  // ── Risk Gate panel ──────────────────────────────────────────
+  function renderRiskGate(risk) {
+    const panel = document.getElementById('risk-panel');
+    if (!risk) { panel.style.display = 'none'; return; }
+
+    // Veto badges (red)
+    const flagEl  = document.getElementById('risk-flags');
+    const flags   = risk.flags || [];
+    const flagLabels = {
+      R_BLOCK:        'R_BLOCK · below 0.85R floor (first DOL)',
+      DEADZONE_BLOCK: 'DEADZONE_BLOCK · 11:30–13:30 ET',
+      RISK_BLOCK:     'RISK_BLOCK · daily stop (advisory)',
+    };
+    flagEl.innerHTML = flags.length
+      ? flags.map(f => `<span class="veto-badge">⛔ ${escHtml(flagLabels[f] || f)}</span>`).join('')
+      : '<span style="color:var(--green);font-size:12px;font-weight:700;">✓ No vetoes</span>';
+
+    // Sizing line
+    const sizeEl = document.getElementById('risk-sizing');
+    if (risk.contracts && risk.contracts >= 1) {
+      const micro = (risk.advisory && risk.advisory.micro) ? risk.advisory.micro : '';
+      sizeEl.innerHTML = `${risk.contracts} ${escHtml(micro)} contract${risk.contracts > 1 ? 's' : ''} `
+        + `<span class="muted">@ $${Math.round(risk.risk_dollars)} risk `
+        + `(${risk.stop_distance_pts} pt stop × $${risk.dollars_per_point}/pt)</span>`;
+    } else {
+      sizeEl.innerHTML = `<span class="muted">Sizing unavailable — ${escHtml(risk.sizing_reason || 'levels not parseable')}</span>`;
+    }
+
+    // Advisory notes (muted)
+    const adv = risk.advisory || {};
+    const notes = [];
+    if (adv.day_type_ceilings) {
+      notes.push(`Day-type R ceilings — overnight-displaced ${escHtml(adv.day_type_ceilings.overnight_displaced || '~2–3R')}; rebalanced-then-continuation ${escHtml(adv.day_type_ceilings.rebalanced_then_continuation || '~4–7R')}`);
+    }
+    if (adv.daily_loss_advisory) {
+      notes.push(`Daily stop: ${adv.daily_loss_count}/${adv.daily_loss_threshold} losses today. ${escHtml(adv.daily_loss_advisory)}`);
+    }
+    document.getElementById('risk-advisory').innerHTML =
+      notes.length ? '<ul>' + notes.map(n => `<li>${n}</li>`).join('') + '</ul>' : '';
+
+    panel.style.display = 'block';
+  }
+
+  // ── Conviction breakdown (Gate 1) ────────────────────────────
+  function renderConvictionBreakdown(conviction) {
+    const el = document.getElementById('conv-breakdown');
+    if (!conviction || !conviction.breakdown || !conviction.breakdown.length) {
+      el.style.display = 'none';
+      el.innerHTML = '';
+      return;
+    }
+    const rows = conviction.breakdown.map(b => {
+      const pts = (b.points > 0 ? '+' : '') + b.points;
+      const col = b.points > 0 ? 'var(--green)' : b.points < 0 ? 'var(--red)' : 'var(--muted)';
+      return `<tr>
+        <td style="color:var(--muted);">${escHtml(b.lens)}</td>
+        <td>${escHtml(b.signal)}</td>
+        <td style="text-align:right;color:${col};font-weight:700;">${pts}</td>
+      </tr>`;
+    }).join('');
+    el.innerHTML = `<table class="vault-mini-table" style="display:none;" id="conv-table">
+      <thead><tr><th>Lens</th><th>Signal</th><th style="text-align:right;">Pts</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+    el.style.display = 'block';
+  }
+
+  function toggleConvBreakdown() {
+    const t = document.getElementById('conv-table');
+    if (t) t.style.display = (t.style.display === 'none' ? 'table' : 'none');
+  }
+
+  // ── Vault — Live Engine ──────────────────────────────────────
+  function biasBin(alignment) {
+    if (alignment >= 0.70) return 'bias-high';
+    if (alignment >= 0.40) return 'bias-med';
+    return 'bias-low';
+  }
+
+  async function loadVaultState() {
+    try {
+      const res  = await fetch('/api/vault_state');
+      const data = await res.json();
+      renderVaultState(data);
+    } catch (err) {
+      // silently leave the vault card hidden if unreachable
+    }
+  }
+
+  function renderVaultState(data) {
+    if (!data) return;
+    const card    = document.getElementById('vault-card');
+    const symbols = (data.bias && data.bias.symbols) || {};
+    const symKeys = Object.keys(symbols);
+
+    // Nothing to show → keep card hidden
+    if (!symKeys.length && !(data.open_setups || []).length && !(data.recent_lessons || []).length) {
+      card.style.display = 'none';
+      return;
+    }
+    card.style.display = 'block';
+
+    // Generated timestamp
+    const tsEl = document.getElementById('vault-ts');
+    tsEl.textContent = (data.bias && data.bias.generated_utc) ? '· ' + data.bias.generated_utc : '';
+
+    // Gate 0 bias pills
+    const biasEl = document.getElementById('vault-bias');
+    biasEl.innerHTML = symKeys.map(sym => {
+      const b   = symbols[sym] || {};
+      const al  = (typeof b.alignment === 'number') ? b.alignment : 0;
+      const cls = biasBin(al);
+      const dir = (b.direction || '?').toUpperCase();
+      const arrow = dir === 'LONG' ? '↑' : dir === 'SHORT' ? '↓' : '·';
+      return `<div class="bias-pill ${cls}">
+        <span class="bp-sym">${escHtml(sym)} ${arrow} ${escHtml(b.model || '')}</span>
+        <span class="bp-meta">align ${al.toFixed(2)} · ${escHtml(b.bin || '')}</span>
+      </div>`;
+    }).join('') || '<span style="color:var(--muted);font-size:12px;">No bias state.</span>';
+
+    // Open setups mini-table
+    const openWrap = document.getElementById('vault-open-wrap');
+    const open     = data.open_setups || [];
+    if (open.length) {
+      document.getElementById('vault-open').innerHTML = open.map(s => `<tr>
+        <td>${escHtml(s.symbol)}</td>
+        <td style="color:${s.direction === 'long' ? 'var(--green)' : s.direction === 'short' ? 'var(--red)' : ''}">${escHtml(s.direction)}</td>
+        <td>${escHtml(s.type)}</td>
+        <td style="color:var(--muted);">${escHtml(s.status)}</td>
+      </tr>`).join('');
+      openWrap.style.display = 'block';
+    } else {
+      openWrap.style.display = 'none';
+    }
+
+    // Last 3 lessons
+    const lessonWrap = document.getElementById('vault-lessons-wrap');
+    const lessons    = (data.recent_lessons || []).slice(0, 3);
+    if (lessons.length) {
+      document.getElementById('vault-lessons').innerHTML = lessons.map(l => {
+        const oc  = (l.outcome || '').toLowerCase();
+        const ocCls = oc === 'win' ? 'win' : oc === 'loss' ? 'loss' : '';
+        const ts  = (l.ts || '').slice(0, 10);
+        return `<li><span class="${ocCls}">${escHtml((l.outcome || '?').toUpperCase())}</span>
+          ${escHtml(l.symbol)} ${escHtml(l.direction)} · ${ts}
+          ${l.targets_hit !== undefined && l.targets_hit !== null ? `· ${l.targets_hit} targets` : ''}</li>`;
+      }).join('');
+      lessonWrap.style.display = 'block';
+    } else {
+      lessonWrap.style.display = 'none';
+    }
+  }
+
+  function renderReasoning(r) {
+    const body  = document.getElementById('reasoning-body');
+    const rows  = [
+      ['HTF Bias',    r.htf_bias       || '—'],
+      ['DOL',         r.dol            || '—'],
+      ['ERL',         r.erl            || '—'],
+      ['IRL',         r.irl            || '—'],
+      ['Model',       r.model_forming  || '—'],
+      ['Gamma',       r.layer_c_gamma  || '—'],
+      ['News',        r.layer_b_news   || '—'],
+    ];
+
+    let html = rows.map(([k, v]) => `
+      <div class="reasoning-row">
+        <div class="reasoning-key">${k}</div>
+        <div class="reasoning-val">${escHtml(v)}</div>
+      </div>`).join('');
+
+    const confluences = r.confluences || [];
+    if (confluences.length) {
+      const items = confluences.map(c => `<li>${escHtml(c)}</li>`).join('');
+      html += `
+      <div class="reasoning-row">
+        <div class="reasoning-key">Confluences</div>
+        <div class="reasoning-val"><ul class="confluence-list">${items}</ul></div>
+      </div>`;
+    }
+
+    body.innerHTML = html;
+    // Reset accordion state
+    reasoningOpen = false;
+    document.getElementById('chevron').className = 'chevron';
+    body.className = 'reasoning-body';
+  }
+
+  function toggleReasoning() {
+    reasoningOpen = !reasoningOpen;
+    const btn  = document.querySelector('.reasoning-toggle');
+    const body = document.getElementById('reasoning-body');
+    const chev = document.getElementById('chevron');
+    body.className = 'reasoning-body' + (reasoningOpen ? ' open' : '');
+    chev.className = 'chevron' + (reasoningOpen ? ' open' : '');
+    btn.querySelector('span:last-child') && null;
+    btn.childNodes[1].textContent = (reasoningOpen ? ' Hide' : ' Show') + ' Reasoning';
+  }
+
+  // ── Feedback ─────────────────────────────────────────────────
+  function showNotesInput() {
+    document.getElementById('notes-row').className = 'notes-row visible';
+    document.getElementById('notes-input').focus();
+  }
+
+  async function submitFeedback(outcome) {
+    if (!currentCallId) return;
+    const notes = document.getElementById('notes-input').value.trim();
+
+    document.getElementById('btn-correct').disabled   = true;
+    document.getElementById('btn-incorrect').disabled = true;
+
+    try {
+      await fetch('/api/feedback', {
+        method:  'POST',
+        headers: {'Content-Type': 'application/json'},
+        body:    JSON.stringify({ call_id: currentCallId, outcome, notes }),
+      });
+
+      const confirm = document.getElementById('feedback-confirm');
+      confirm.className   = 'feedback-confirm ' + outcome;
+      confirm.textContent = outcome === 'correct'
+        ? '✓ Saved as correct — model will learn from this'
+        : '✗ Saved as incorrect' + (notes ? ` — "${notes}"` : '') + ' — model will learn from this';
+      confirm.style.display = 'flex';
+
+      // Update the current-outcome row to reflect the new state
+      const ocRow = document.getElementById('current-outcome-row');
+      const icon  = outcome === 'correct' ? '✓' : '✗';
+      const label = outcome === 'correct' ? 'Marked correct' : 'Marked incorrect';
+      const note  = notes ? ` — "${notes}"` : '';
+      ocRow.className   = 'current-outcome-row ' + outcome;
+      ocRow.textContent = `${icon} ${label}${note}  ·  Click a button below to change`;
+      ocRow.style.display = 'flex';
+
+      document.getElementById('notes-row').className = 'notes-row';
+      loadHistory();
+
+    } catch (err) {
+      showError('Could not save feedback.');
+    }
+  }
+
+  // ── Trade selector ───────────────────────────────────────────
+  function populateSelector(entries) {
+    const sel = document.getElementById('trade-selector');
+    const prevVal = sel.value;
+    sel.innerHTML = '<option value="">— Select a trade —</option>';
+    entries.forEach(e => {
+      const oc   = e.outcome === 'correct' ? '✓' : e.outcome === 'incorrect' ? '✗' : '·';
+      const dir  = e.direction !== 'N/A' ? ` ${e.direction}` : '';
+      const label = `${oc}  ${e.timestamp || ''}  |  ${e.symbol}  |  ${e.model}${dir}  —  ${e.confidence}`;
+      const opt  = document.createElement('option');
+      opt.value  = e.id;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    });
+    if (prevVal) sel.value = prevVal;
+    document.getElementById('trade-selector-card').style.display =
+      entries.length ? 'block' : 'none';
+  }
+
+  function loadSelectedTrade() {
+    const sel = document.getElementById('trade-selector');
+    const id  = sel.value;
+    if (!id) return;
+    loadTradeById(id);
+  }
+
+  async function loadTradeById(callId) {
+    clearError();
+    try {
+      const res  = await fetch(`/api/trade/${callId}`);
+      const data = await res.json();
+      if (!data.success) { showError(data.error || 'Trade not found.'); return; }
+      updateStatus({ symbol: data.symbol, timeframe: data.timeframe });
+      currentCallId = data.call_id;
+      renderCall(data.call, data.call_id, data.outcome, data.notes, data.timestamp || null);
+    } catch (err) {
+      showError('Could not load trade.');
+    }
+  }
+
+  // ── History ──────────────────────────────────────────────────
+  async function loadHistory() {
+    try {
+      const res     = await fetch('/api/history');
+      const entries = await res.json();
+      historyCache  = entries;
+
+      const container = document.getElementById('history-container');
+      populateSelector(entries);
+
+      if (!entries.length) {
+        container.innerHTML = '<div class="empty-history">No calls yet.</div>';
+        return;
+      }
+
+      // Win rate — Long/Short only, resolved only (no NO TRADE, no pending)
+      const directional = entries.filter(e =>
+        (e.direction === 'Long' || e.direction === 'Short') &&
+        (e.outcome === 'correct' || e.outcome === 'incorrect')
+      );
+      const wins    = directional.filter(e => e.outcome === 'correct').length;
+      const losses  = directional.filter(e => e.outcome === 'incorrect').length;
+      const total   = directional.length;
+      const pending = entries.filter(e =>
+        (e.direction === 'Long' || e.direction === 'Short') && e.outcome === 'pending'
+      ).length;
+      const pct     = total > 0 ? Math.round((wins / total) * 100) : null;
+      const pctText = pct !== null ? pct + '%' : '—';
+      const pctCls  = pct === null ? 'neutral' : pct >= 50 ? 'positive' : 'negative';
+      const fillW   = pct !== null ? pct : 0;
+
+      const winRateHTML = `
+        <div class="win-rate-block">
+          <div>
+            <div class="win-rate-label">Win Rate</div>
+            <div class="win-rate-pct ${pctCls}">${pctText}</div>
+          </div>
+          <div class="win-rate-bar-wrap">
+            <div class="win-rate-bar-track">
+              <div class="win-rate-bar-fill" style="width:${fillW}%"></div>
+            </div>
+            <div class="win-rate-counts">
+              <span class="w">W ${wins}</span>
+              <span class="l">L ${losses}</span>
+              ${pending > 0 ? `<span class="p">${pending} pending</span>` : ''}
+              <span style="color:var(--muted)">${total} resolved</span>
+            </div>
+          </div>
+          <div class="win-rate-meta">
+            <div class="win-rate-label">Scope</div>
+            <div class="win-rate-detail">Long &amp; Short only</div>
+          </div>
+        </div>`;
+
+      const rows = entries.map(e => {
+        const oc = { correct: 'outcome-correct', incorrect: 'outcome-incorrect', pending: 'outcome-pending' }[e.outcome] || 'outcome-pending';
+        const dirColor = e.direction === 'Long' ? 'color:var(--green)' : e.direction === 'Short' ? 'color:var(--red)' : '';
+        return `<tr style="cursor:pointer;" onclick="loadTradeById('${e.id}')">
+          <td style="color:var(--muted)">${e.timestamp || ''}</td>
+          <td>${escHtml(e.symbol)} <span style="color:var(--muted)">${e.timeframe}m</span></td>
+          <td style="${dirColor}">${escHtml(e.model)}</td>
+          <td style="${dirColor}">${escHtml(e.direction)}</td>
+          <td><span class="grade-pill ${gradeClass(e.confidence)}">${escHtml(e.confidence)}</span></td>
+          <td><span class="outcome-badge ${oc}">${e.outcome}</span></td>
+        </tr>`;
+      }).join('');
+
+      container.innerHTML = winRateHTML + `
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Time</th><th>Symbol</th><th>Model</th>
+              <th>Dir</th><th>Conf</th><th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    } catch (err) {
+      // silently fail on history load
+    }
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function gradeClass(conf) {
+    const map = {
+      'A+': 'grade-a-plus',  'A': 'grade-a',       'A-': 'grade-a-minus',
+      'B+': 'grade-b-plus',  'B': 'grade-b',       'B-': 'grade-b-minus',
+      'C+': 'grade-c-plus',  'C': 'grade-c',       'C-': 'grade-c-minus',
+      'NO TRADE': 'grade-nt',
+    };
+    return map[conf] || 'grade-nt';
+  }
+
+  function escHtml(str) {
+    if (!str) return '—';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>
